@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v05)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v06)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -242,7 +242,7 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
 
 /* Barra inferiore a 5 pulsanti uguali */
 #bottom-nav{
- position:fixed;left:0;right:0;bottom:0;z-index:25;
+ position:fixed;left:0;right:0;bottom:0;z-index:40;
  display:grid;grid-template-columns:repeat(5,1fr);align-items:center;gap:5px;
  background:rgba(17,23,38,.97);border-top:1px solid var(--border);
  padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
@@ -280,11 +280,11 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
 <div id="p"></div>
 <div id="modal"></div>
 <div id="bottom-nav">
- <button class="nav-btn" data-a="go" data-v="bioma"><span>🌿</span><span id="nav-bioma">Biomi</span></button>
- <button class="nav-btn" data-a="go" data-v="menu"><span>⚙</span><span id="nav-menu">Sviluppo</span></button>
- <button class="nav-btn" data-a="go" data-v="guerre"><span>⚔️</span><span id="nav-guerre">Guerre</span></button>
- <button class="nav-btn" data-a="go" data-v="stats"><span>📊</span><span id="nav-stats">Stats</span></button>
- <button class="nav-btn" data-a="go" data-v="opzioni"><span>🎛</span><span id="nav-opzioni">Opzioni</span></button>
+ <button type="button" class="nav-btn" data-a="go" data-v="bioma"><span>🌿</span><span id="nav-bioma">Biomi</span></button>
+ <button type="button" class="nav-btn" data-a="go" data-v="menu"><span>⚙</span><span id="nav-menu">Sviluppo</span></button>
+ <button type="button" class="nav-btn" data-a="go" data-v="guerre"><span>⚔️</span><span id="nav-guerre">Guerre</span></button>
+ <button type="button" class="nav-btn" data-a="go" data-v="stats"><span>📊</span><span id="nav-stats">Stats</span></button>
+ <button type="button" class="nav-btn" data-a="go" data-v="opzioni"><span>🎛</span><span id="nav-opzioni">Opzioni</span></button>
 </div>
 <div id="toast"></div>
 <script>
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v05",
+ VERSIONE:"NHW_new_v06",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v05",
+ SAVE_KEY:"nhw_living_cycle_new_v06",
 
  BIOMI:[
  {
@@ -1130,63 +1130,63 @@ var SIM={
  },
 
  finishWheelNow:function(st){
-  if(!st||!st.specialWheel)return;
-  if(!st.specialWheel.resolved){
-   var pObj=CONFIG.WHEEL_PRIZES[st.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
-   this.applyWheelPrize(st,pObj);
-   st.specialWheel.resolved=true;
-  }
-  st.specialWheel.expiresAt=0;
-  st.specialWheel=null;
-  st.prossimoLancio=st.t+this.getLancioIntervalSec(st);
-  U.wheelSpinning=false;
+ if(!st||!st.specialWheel)return;
+ if(!st.specialWheel.resolved){
+ var pObj=CONFIG.WHEEL_PRIZES[st.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+ this.applyWheelPrize(st,pObj);
+ st.specialWheel.resolved=true;
+ }
+ st.specialWheel.expiresAt=0;
+ st.specialWheel=null;
+ st.prossimoLancio=st.t+this.getLancioIntervalSec(st);
+ U.wheelSpinning=false;
  },
 
  triggerSpecialWheel:function(st,instantResolve){
-  var idx=Math.floor(this.nextRnd(st)*CONFIG.WHEEL_PRIZES.length);
-  var prize=CONFIG.WHEEL_PRIZES[idx];
-  if(instantResolve){
-   this.applyWheelPrize(st,prize);
-   st.specialWheel=null;
-   return;
-  }
-  var targetRot=1080+(360-prize.angle);
-  var nowMs=Date.now();
-  st.specialWheel={prizeIdx:idx,spun:false,resolved:false,targetRot:targetRot,startedAt:nowMs,expiresAt:nowMs+5200};
-  U.wheelRot=0;
-  U.wheelSpinning=false;
-  clearTimeout(U.wheelTimer);
-  clearTimeout(U.wheelEndTimer);
-  clearTimeout(U.wheelClearTimer);
-  AUDIO.play("wheel");
+ var idx=Math.floor(this.nextRnd(st)*CONFIG.WHEEL_PRIZES.length);
+ var prize=CONFIG.WHEEL_PRIZES[idx];
+ if(instantResolve){
+ this.applyWheelPrize(st,prize);
+ st.specialWheel=null;
+ return;
+ }
+ var targetRot=1080+(360-prize.angle);
+ var nowMs=Date.now();
+ st.specialWheel={prizeIdx:idx,spun:false,resolved:false,targetRot:targetRot,startedAt:nowMs,expiresAt:nowMs+5200};
+ U.wheelRot=0;
+ U.wheelSpinning=false;
+ clearTimeout(U.wheelTimer);
+ clearTimeout(U.wheelEndTimer);
+ clearTimeout(U.wheelClearTimer);
+ AUDIO.play("wheel");
 
-  U.wheelTimer=setTimeout(function(){
-   if(!S||!S.specialWheel)return;
-   S.specialWheel.spun=true;
-   U.wheelSpinning=true;
-   U.wheelRot=targetRot;
-   UI.renderFull();
+ U.wheelTimer=setTimeout(function(){
+ if(!S||!S.specialWheel)return;
+ S.specialWheel.spun=true;
+ U.wheelSpinning=true;
+ U.wheelRot=targetRot;
+ UI.renderFull();
 
-   var dur=UI.motoRidotto()?150:2200;
-   U.wheelEndTimer=setTimeout(function(){
-    if(!S||!S.specialWheel)return;
-    var pObj=CONFIG.WHEEL_PRIZES[S.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
-    if(!S.specialWheel.resolved){
-     SIM.applyWheelPrize(S,pObj);
-     S.specialWheel.resolved=true;
-    }
-    U.wheelSpinning=false;
-    SAVE.saveLocal();
-    UI.renderFull();
+ var dur=UI.motoRidotto()?150:2200;
+ U.wheelEndTimer=setTimeout(function(){
+ if(!S||!S.specialWheel)return;
+ var pObj=CONFIG.WHEEL_PRIZES[S.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+ if(!S.specialWheel.resolved){
+ SIM.applyWheelPrize(S,pObj);
+ S.specialWheel.resolved=true;
+ }
+ U.wheelSpinning=false;
+ SAVE.saveLocal();
+ UI.renderFull();
 
-    U.wheelClearTimer=setTimeout(function(){
-     if(!S||!S.specialWheel)return;
-     SIM.finishWheelNow(S);
-     SAVE.saveLocal();
-     UI.renderFull();
-    },1800);
-   },dur);
-  },100);
+ U.wheelClearTimer=setTimeout(function(){
+ if(!S||!S.specialWheel)return;
+ SIM.finishWheelNow(S);
+ SAVE.saveLocal();
+ UI.renderFull();
+ },1800);
+ },dur);
+ },100);
  },
 
  lanciaDadiD20:function(st,isManual,isOffline){
@@ -1715,30 +1715,30 @@ var UI={
  },
 
  renderSpecialWheel:function(){
-  var sw=S.specialWheel;
-  var prize=CONFIG.WHEEL_PRIZES[sw.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
-  var rot=sw.spun?(sw.targetRot||U.wheelRot||1080):0;
-  var segIcons=["💧","✨","🌿","😺","⏳","💎"];
-  var segsHtml="";
-  for(var i=0;i<6;i++){
-   var deg=i*60+30;
-   segsHtml+='<div class="wheel-seg-ico" style="transform:rotate('+deg+'deg) translateY(-48px) rotate(-'+deg+'deg)">'+segIcons[i]+'</div>';
-  }
-  var statusTxt=sw.resolved
-   ?this.esc(U.lang==="en"?prize.enLabel:prize.itLabel)
-   :this.tr("La ruota gira...","The wheel spins...");
+ var sw=S.specialWheel;
+ var prize=CONFIG.WHEEL_PRIZES[sw.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+ var rot=sw.spun?(sw.targetRot||U.wheelRot||1080):0;
+ var segIcons=["💧","✨","🌿","😺","⏳","💎"];
+ var segsHtml="";
+ for(var i=0;i<6;i++){
+ var deg=i*60+30;
+ segsHtml+='<div class="wheel-seg-ico" style="transform:rotate('+deg+'deg) translateY(-48px) rotate(-'+deg+'deg)">'+segIcons[i]+'</div>';
+ }
+ var statusTxt=sw.resolved
+ ?this.esc(U.lang==="en"?prize.enLabel:prize.itLabel)
+ :this.tr("La ruota gira...","The wheel spins...");
 
-  return '<div class="wheel-stage">'+
-   '<div class="wheel-wrap">'+
-   '<div class="wheel-pointer"></div>'+
-   '<div class="wheel-disc" style="transform:rotate('+rot+'deg)">'+
-   '<div class="wheel-labels">'+segsHtml+'</div>'+
-   '</div>'+
-   '<div class="wheel-hub">🐾</div>'+
-   '</div>'+
-   '<div class="wheel-status">'+statusTxt+'</div>'+
-   '<button type="button" class="mini on" data-a="finishWheel">'+this.tr("Continua","Continue")+'</button>'+
-   '</div>';
+ return '<div class="wheel-stage">'+
+ '<div class="wheel-wrap">'+
+ '<div class="wheel-pointer"></div>'+
+ '<div class="wheel-disc" style="transform:rotate('+rot+'deg)">'+
+ '<div class="wheel-labels">'+segsHtml+'</div>'+
+ '</div>'+
+ '<div class="wheel-hub">🐾</div>'+
+ '</div>'+
+ '<div class="wheel-status">'+statusTxt+'</div>'+
+ '<button type="button" class="mini on" data-a="finishWheel">'+this.tr("Continua","Continue")+'</button>'+
+ '</div>';
  },
 
  renderMiniDiary3:function(){
@@ -1821,7 +1821,7 @@ var UI={
  '<span>'+this.tr("Animali vivi: ","Living animals: ")+'<b id="home-bio-alive">'+bioStats.count+'/25</b></span>'+
  '<span>'+this.tr("Età media: ","Avg age: ")+'<b id="home-bio-age">'+avgAgeStr+'</b></span>'+
  '</div>'+
- '<button class="mini" data-a="go" data-v="bioma">'+this.tr("Esplora ","Explore ")+this.esc(bFocNome)+'</button>'+
+ '<button type="button" class="mini" data-a="go" data-v="bioma">'+this.tr("Esplora ","Explore ")+this.esc(bFocNome)+'</button>'+
  '</div>'+
  '</div>';
  return h;
@@ -1830,7 +1830,7 @@ var UI={
  renderReturnHomeBar:function(){
  return '<div class="row" style="justify-content:space-between;background:var(--card);border:1px solid var(--amber);border-radius:10px;padding:7px 10px;margin-bottom:9px">'+
  '<span class="dim">'+this.tr("Vista secondaria","Secondary view")+'</span>'+
- '<button class="mini on" data-a="go" data-v="home">🏠 '+this.tr("Torna a Casa","Back to Home")+'</button>'+
+ '<button type="button" class="mini on" data-a="go" data-v="home">🏠 '+this.tr("Torna a Casa","Back to Home")+'</button>'+
  '</div>';
  },
 
@@ -1844,7 +1844,7 @@ var UI={
  var bm=CONFIG.BIOMI[i];
  var bn=U.lang==="en"?bm.en.N:bm.it.N;
  var alive=S.biomi[i].sbloccato;
- swHtml+='<button class="biome-sw-btn'+(i===b?' on':'')+'" data-a="selBioma" data-b="'+i+'">'+
+ swHtml+='<button type="button" class="biome-sw-btn'+(i===b?' on':'')+'" data-a="selBioma" data-b="'+i+'">'+
  '<span class="dot-st" style="background:'+(alive?CONFIG.CCOL[i]:'#475569')+'"></span>'+
  '<span>'+this.esc(bn)+'</span>'+
  '</button>';
@@ -1941,6 +1941,52 @@ var UI={
  '</div>';
  },
 
+ renderWarCardsList:function(){
+ var allWars=S.guerre||[];
+ var activeWars=allWars.filter(function(w){return w.active;}).reverse();
+ var finishedWars=allWars.filter(function(w){return !w.active;}).slice(-CONFIG.REGOLE.maxConcludedWarsShown).reverse();
+ var list=U.warSubTab==="active"?activeWars:finishedWars;
+ if(list.length===0){
+  return '<div class="banner" style="background:var(--card);border-color:var(--border);color:var(--m)">'+
+   (U.warSubTab==="active"
+    ?this.tr("Nessuna guerra in corso. Un bioma attacca in autonomia a 20/25 animali con almeno 10 adulti contro difensori con almeno 4 adulti.","No ongoing wars. A biome attacks autonomously at 20/25 animals with at least 10 adults against defenders with at least 4 adults.")
+    :this.tr("Nessuna guerra ancora conclusa.","No concluded wars yet."))+
+   '</div>';
+ }
+ return list.map(function(w){
+  var atkMeta=CONFIG.BIOMI[w.atkIdx]||CONFIG.BIOMI[0];
+  var defMeta=CONFIG.BIOMI[w.defIdx]||CONFIG.BIOMI[0];
+  var atkNome=U.lang==="en"?atkMeta.en.N:atkMeta.it.N;
+  var defNome=U.lang==="en"?defMeta.en.N:defMeta.it.N;
+  var stA=SIM.getBiomeLivingStats(S,w.atkIdx);
+  var stD=SIM.getBiomeLivingStats(S,w.defIdx);
+  var pct=Math.round(SIM.getWarHitChance(S,w.atkIdx,w.defIdx)*100);
+  var atkAd=w.active?(UI.tr("Adulti: ","Adults: ")+stA.adults):(UI.tr("Adulti: ","Adults: ")+w.startAtkAdults+" → "+w.endAtkAdults);
+  var defAd=w.active?(UI.tr("Adulti: ","Adults: ")+stD.adults):(UI.tr("Adulti: ","Adults: ")+w.startDefAdults+" → "+w.endDefAdults);
+  var fourth=w.active
+   ?('<div>'+UI.tr("Cenere totale: ","Total Ash: ")+'<b>'+UI.fmtNum(S.cenere||0)+'</b></div>')
+   :('<div>'+UI.tr("Vincitore: ","Winner: ")+'<b>'+UI.esc(U.lang==="en"?w.winnerEn:w.winnerIt)+' (+'+w.cenereGained+' 🔥)</b></div>');
+  var furiaNote=(!w.active && w.furiaIt)
+   ?('<div class="furia-war-note"><b>'+UI.tr("Ruota di Furia: ","Furia's Wheel: ")+'</b>'+UI.esc(U.lang==="en"?w.furiaEn:w.furiaIt)+'</div>')
+   :'';
+  return '<div class="war-card">'+
+   '<div class="war-card-hd"><span>'+(w.active?UI.tr("IN CORSO","ONGOING"):UI.tr("CONCLUSA","CONCLUDED"))+'</span><span>Tick: <b>'+w.ticksElapsed+'</b></span></div>'+
+   '<div class="war-visual">'+
+   '<div class="war-bubble atk"><small style="color:var(--m);font-size:.66rem">'+UI.tr("ATTACCANTE","ATTACKER")+'</small><br>'+UI.esc(atkNome)+'<br><small style="color:var(--m);font-weight:600">'+atkAd+'</small></div>'+
+   '<div class="war-arrows">═══▶<br><span>'+pct+'%</span></div>'+
+   '<div class="war-bubble def"><small style="color:var(--m);font-size:.66rem">'+UI.tr("DIFENSORE","DEFENDER")+'</small><br>'+UI.esc(defNome)+'<br><small style="color:var(--m);font-weight:600">'+defAd+'</small></div>'+
+   '</div>'+
+   '<div class="war-stats">'+
+   '<div>'+UI.tr("Forza: ","Force: ")+'<b>'+w.allocatedForce+'</b></div>'+
+   '<div>'+UI.tr("Nemici caduti: ","Enemies fallen: ")+'<b>'+w.enemyKills+'</b></div>'+
+   '<div>'+UI.tr("Adulti persi: ","Adults lost: ")+'<b>'+w.ownAdultLosses+'</b></div>'+
+   fourth+
+   '</div>'+
+   furiaNote+
+   '</div>';
+ }).join("");
+ },
+
  guerreHtml:function(){
  var allWars=S.guerre||[];
  var activeWars=allWars.filter(function(w){return w.active;}).reverse();
@@ -1956,8 +2002,8 @@ var UI={
  :this.tr("Concluse ("+finishedWars.length+"/20)","Concluded ("+finishedWars.length+"/20)");
 
  var subTabs='<div class="war-subtabs">'+
- '<button class="war-sub-btn'+(U.warSubTab==="active"?' on':'')+'" data-a="warSub" data-sub="active">'+this.tr("In corso","Ongoing")+' ('+activeWars.length+')</button>'+
- '<button class="war-sub-btn'+(U.warSubTab==="finished"?' on':'')+'" data-a="warSub" data-sub="finished">'+finishedBtnLabel+'</button>'+
+ '<button type="button" class="war-sub-btn'+(U.warSubTab==="active"?' on':'')+'" data-a="warSub" data-sub="active">'+this.tr("In corso","Ongoing")+' ('+activeWars.length+')</button>'+
+ '<button type="button" class="war-sub-btn'+(U.warSubTab==="finished"?' on':'')+'" data-a="warSub" data-sub="finished">'+finishedBtnLabel+'</button>'+
  '</div>';
 
  var cardsHtml="";
@@ -2005,7 +2051,7 @@ var UI={
 
  return this.renderReturnHomeBar()+
  '<div class="frame"><div class="frame-hd"><span>⚔️ '+this.tr("Guerre","Wars")+'</span><small style="color:#fed7aa;font-weight:800">🔥 '+this.fmtNum(S.cenere||0)+' '+this.tr("Cenere","Ash")+'</small></div>'+
- furiaBanner+subTabs+cardsHtml+
+ furiaBanner+subTabs+'<div id="war-cards-container">'+cardsHtml+'</div>'+
  '</div>';
  },
 
@@ -2052,20 +2098,20 @@ var UI={
  '<div class="frame"><div class="frame-hd"><span>'+this.tr("Opzioni","Options")+'</span><small style="color:var(--m)">'+CONFIG.VERSIONE+'</small></div>'+
  '<div class="opt-section-lbl">'+this.tr("Tempo & Guida","Time & Guide")+'</div>'+
  '<div class="row" id="opt-vel-row">'+
- '<button class="mini'+(U.vel===0?' on':'')+'" data-a="vel" data-v="0">⏸ '+this.tr("Pausa","Pause")+'</button>'+
- '<button class="mini'+(U.vel===1?' on':'')+'" data-a="vel" data-v="1">1x</button>'+
- '<button class="mini'+(U.vel===10?' on':'')+'" data-a="vel" data-v="10">10x</button>'+
- '<button class="mini help-opt-btn" data-a="openHelp">? '+this.tr("Guida","Help")+'</button>'+
+ '<button type="button" class="mini'+(U.vel===0?' on':'')+'" data-a="vel" data-v="0">⏸ '+this.tr("Pausa","Pause")+'</button>'+
+ '<button type="button" class="mini'+(U.vel===1?' on':'')+'" data-a="vel" data-v="1">1x</button>'+
+ '<button type="button" class="mini'+(U.vel===10?' on':'')+'" data-a="vel" data-v="10">10x</button>'+
+ '<button type="button" class="mini help-opt-btn" data-a="openHelp">? '+this.tr("Guida","Help")+'</button>'+
  '</div>'+
  '<div class="opt-section-lbl">'+this.tr("Preferenze & Salvataggio","Preferences & Save")+'</div>'+
  '<div class="row">'+
- '<button class="mini" data-a="lang">'+this.tr("Lingua: IT","Language: EN")+'</button>'+
- '<button class="mini" data-a="audio">'+this.tr("Audio: ","Audio: ")+(AUDIO.enabled?"ON":"OFF")+'</button>'+
- '<button class="mini" data-a="diceTheme">'+this.tr("Stile dadi: ","Dice style: ")+(U.diceTheme==="emoji"?"Emoji":"Line-Art")+'</button>'+
- '<button class="mini" data-a="motion">'+this.tr("Moto ridotto: ","Reduced motion: ")+(U.noMotion?"ON":"OFF")+'</button>'+
- '<button class="mini" data-a="expSave">'+this.tr("Esporta","Export")+'</button>'+
- '<button class="mini" data-a="impSave">'+this.tr("Importa","Import")+'</button>'+
- '<button class="mini" data-a="reset">'+this.tr("Nuovo mondo","New world")+'</button>'+
+ '<button type="button" class="mini" data-a="lang">'+this.tr("Lingua: IT","Language: EN")+'</button>'+
+ '<button type="button" class="mini" data-a="audio">'+this.tr("Audio: ","Audio: ")+(AUDIO.enabled?"ON":"OFF")+'</button>'+
+ '<button type="button" class="mini" data-a="diceTheme">'+this.tr("Stile dadi: ","Dice style: ")+(U.diceTheme==="emoji"?"Emoji":"Line-Art")+'</button>'+
+ '<button type="button" class="mini" data-a="motion">'+this.tr("Moto ridotto: ","Reduced motion: ")+(U.noMotion?"ON":"OFF")+'</button>'+
+ '<button type="button" class="mini" data-a="expSave">'+this.tr("Esporta","Export")+'</button>'+
+ '<button type="button" class="mini" data-a="impSave">'+this.tr("Importa","Import")+'</button>'+
+ '<button type="button" class="mini" data-a="reset">'+this.tr("Nuovo mondo","New world")+'</button>'+
  '</div>'+
  '<textarea class="sv-box" id="sv-box" placeholder="'+this.esc(this.tr("Codice salvataggio JSON...","Save JSON code..."))+'"></textarea>'+
  '</div>';
@@ -2073,7 +2119,7 @@ var UI={
 
  showHelpModal:function(){
  var m=document.getElementById("modal");if(!m)return;
- m.innerHTML='<div class="mbox"><div class="frame-hd"><span>'+this.tr("Guida al Mondo","World Guide")+'</span><button class="mini" data-a="closeModal">✕</button></div>'+
+ m.innerHTML='<div class="mbox"><div class="frame-hd"><span>'+this.tr("Guida al Mondo","World Guide")+'</span><button type="button" class="mini" data-a="closeModal">✕</button></div>'+
  '<div class="help-section"><b>'+this.tr("1. I dadi di Furia e il Colore","1. Furia\'s Dice & Color")+'</b>'+
  this.tr("Furia lancia da 1 a 5 dadi in base al suo temperamento. Le combinazioni con Colore (es. Coppia + Colore, Tris + Colore, Colore puro) si attivano solo nei lanci da 5 dadi, escludendo i dadi spaiati dal controllo del colore.","Furia rolls 1 to 5 dice based on temperament. Color combinations (e.g. Pair + Color, Three of a kind + Color, Flush) trigger only on 5-dice rolls, excluding non-scoring kicker dice from the color check.")+
  '</div>'+
@@ -2128,9 +2174,10 @@ var UI={
  if(aliveEl)aliveEl.textContent=bioStats.count+"/25";
  if(ageEl)ageEl.textContent=bioStats.count>0?(bioStats.avgAge+" "+this.tr("anni","yrs")):"—";
  }else if(U.view==="bioma"){
- this.renderFull();
+ try{this.drawBiomeMiniMap();}catch(e){}
  }else if(U.view==="guerre" && U.warSubTab==="active"){
- this.renderFull();
+ var wBox=document.getElementById("war-cards-container");
+ if(wBox)wBox.innerHTML=this.renderWarCardsList();
  }
  },
 
@@ -2287,8 +2334,12 @@ function avvia(){
  UI.renderFull();
 
  setInterval(function(){
- if(!S||document.hidden||U.vel<=0||S.specialWheel)return;
-  if(S&&S.specialWheel&&S.specialWheel.expiresAt&&Date.now()>=S.specialWheel.expiresAt){SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();}
+ if(!S||document.hidden)return;
+ if(S.specialWheel&&S.specialWheel.expiresAt&&Date.now()>=S.specialWheel.expiresAt){
+  clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);
+  SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();return;
+ }
+ if(U.vel<=0||S.specialWheel)return;
  var steps=U.vel===10?5:1;
  var needFull=false;
  for(var k=0;k<steps;k++){
@@ -2301,10 +2352,19 @@ function avvia(){
  },1000);
 }
 
-document.addEventListener("click",function(e){
- var el=e.target.closest?e.target.closest("[data-a]"):null;
- if(el&&!el.disabled){e.preventDefault();agisci(el.getAttribute("data-a"),el);}
-});
+var _lastActTs=0;
+function handleActionEvent(e){
+ var target=e.target&&e.target.nodeType===3?e.target.parentNode:e.target;
+ var el=target&&target.closest?target.closest("[data-a]"):null;
+ if(!el||el.disabled)return;
+ var now=Date.now();
+ if(now-_lastActTs<180)return;
+ _lastActTs=now;
+ e.preventDefault();
+ agisci(el.getAttribute("data-a"),el);
+}
+document.addEventListener("pointerup",handleActionEvent);
+document.addEventListener("click",handleActionEvent);
 document.addEventListener("visibilitychange",function(){if(document.hidden)SAVE.saveLocal();});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvia);else avvia();
 if("serviceWorker" in navigator){
