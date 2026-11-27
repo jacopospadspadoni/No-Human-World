@@ -1,0 +1,30 @@
+{
+  "name": "No Human World · Ciclo della Vita",
+  "short_name": "No Human World",
+  "description": "Idle simulation game of biomes, 25 animal species, Furia's 25-sided dice, Echo Seeds and Ash Rituals.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d16",
+  "theme_color": "#14112a",
+  "lang": "it",
+  "categories": [
+    "games",
+    "simulation"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
