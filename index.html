@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v08)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v09)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v08",
+ VERSIONE:"NHW_new_v09",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v08",
+ SAVE_KEY:"nhw_living_cycle_new_v09",
 
  BIOMI:[
  {
@@ -648,34 +648,51 @@ var SIM={
 
  processAutonomousBirths:function(st){
  var bornCount=0;
- for(var b=0;b<st.biomi.length;b++){
- var B=st.biomi[b],meta=CONFIG.BIOMI[b];
- for(var k=0;k<5;k++){
- var sp=B.specie[k];
- var val=sp.valore||(k+1);
- while((sp.individui||[]).length<this.getSpeciesMaxSlots(st,b,k)){
- var cuccSpecie=this.countCuccioliInSpecies(sp);
- var cuccAltriBioma=0;
- for(var j=0;j<5;j++){
- if(j!==k)cuccAltriBioma+=this.countCuccioliInSpecies(B.specie[j]);
+ var startCursor=(st.birthCursor||0)%5;
+ var progress=true;
+ while(progress){
+  progress=false;
+  /* Ordina i biomi per individui vivi crescenti, con rotazione di cortesia a parità */
+  var order=[0,1,2,3,4].sort(function(b1,b2){
+   var c1=SIM.getBiomeLivingStats(st,b1).count;
+   var c2=SIM.getBiomeLivingStats(st,b2).count;
+   if(c1!==c2)return c1-c2;
+   var r1=(b1-startCursor+5)%5;
+   var r2=(b2-startCursor+5)%5;
+   return r1-r2;
+  });
+  for(var oi=0;oi<order.length;oi++){
+   var b=order[oi];
+   var B=st.biomi[b],meta=CONFIG.BIOMI[b];
+   for(var k=0;k<5;k++){
+    var sp=B.specie[k];
+    var val=sp.valore||(k+1);
+    if((sp.individui||[]).length<this.getSpeciesMaxSlots(st,b,k)){
+     var cuccSpecie=this.countCuccioliInSpecies(sp);
+     var cuccAltriBioma=0;
+     for(var j=0;j<5;j++){
+      if(j!==k)cuccAltriBioma+=this.countCuccioliInSpecies(B.specie[j]);
+     }
+     var cost=this.getBirthCostForIndividual(st,val,cuccSpecie,cuccAltriBioma);
+     if(st.linfa>=cost){
+      st.linfa-=cost;
+      st.stats.nascite++;
+      bornCount++;
+      progress=true;
+      sp.individui.push(this.makeIndividual(meta.animali[k],st.stats.nascite));
+      if(!B.sbloccato){
+       B.sbloccato=true;
+       this.addLog(st,meta.it.N+" ha preso vita con il primo cucciolo di "+meta.animali[k]+"!",meta.en.N+" came to life with the first "+meta.animaliEn[k]+" cub!",true);
+      }else{
+       this.addLog(st,meta.it.N+": nuovo cucciolo di "+meta.animali[k]+" nato.",meta.en.N+": new "+meta.animaliEn[k]+" cub born.",false);
+      }
+      break;
+     }
+    }
+   }
+  }
  }
- var cost=this.getBirthCostForIndividual(st,val,cuccSpecie,cuccAltriBioma);
- if(st.linfa<cost)break;
-
- st.linfa-=cost;
- st.stats.nascite++;
- bornCount++;
- sp.individui.push(this.makeIndividual(meta.animali[k],st.stats.nascite));
-
- if(!B.sbloccato){
- B.sbloccato=true;
- this.addLog(st,meta.it.N+" ha preso vita con il primo cucciolo di "+meta.animali[k]+"!",meta.en.N+" came to life with the first "+meta.animaliEn[k]+" cub!",true);
- }else{
- this.addLog(st,meta.it.N+": nuovo cucciolo di "+meta.animali[k]+" nato.",meta.en.N+": new "+meta.animaliEn[k]+" cub born.",false);
- }
- }
- }
- }
+ st.birthCursor=(startCursor+1)%5;
  return bornCount;
  },
 
@@ -1388,6 +1405,7 @@ var SIM={
  prestigeCount:0,
  prestigeExtraSlots:{},
  lastPrestigeChoice:null,
+ birthCursor:0,
  upgrades:{
  stimolo_furia:0,richiamo_dadi:0,mano_lesta:0,risonanza_bioma:0,eco_ciclo:0,
  scudo_bioma:0,tempra_guerriera:0,seme_ardente:0
@@ -1604,21 +1622,58 @@ var UI={
  }
  }
 
- ctx.font="900 32px 'Plus Jakarta Sans', sans-serif";
+ /* Frecce per le guerre attive sulla mappa di Casa */
+ var activeW=(S.guerre||[]).filter(function(w){return w.active;});
+ for(var wi=0;wi<activeW.length;wi++){
+  var wwObj=activeW[wi];
+  var cA=this.MAP_CENTERS[SIM.clamp(wwObj.atkIdx,0,4)];
+  var cD=this.MAP_CENTERS[SIM.clamp(wwObj.defIdx,0,4)];
+  var x1=cA.x*cw,y1=cA.y*ch,x2=cD.x*cw,y2=cD.y*ch;
+  var mx=(x1+x2)*0.5,my=(y1+y2)*0.5 - 24 - (wi*10);
+  ctx.save();
+  ctx.strokeStyle="#ef4444";
+  ctx.fillStyle="#ef4444";
+  ctx.lineWidth=6;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.quadraticCurveTo(mx,my,x2,y2);
+  ctx.stroke();
+  var ang=Math.atan2(y2-my,x2-mx);
+  var hl=22;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-hl*Math.cos(ang-0.42),y2-hl*Math.sin(ang-0.42));
+  ctx.lineTo(x2-hl*Math.cos(ang+0.42),y2-hl*Math.sin(ang+0.42));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+ }
+
+ /* Singola etichetta per bioma con 3 voci: Nome · Vivi/Cap · Adulti */
  ctx.textBaseline="middle";ctx.textAlign="center";
  for(var c=0;c<5;c++){
  var lp=this.MAP_LABELS[c];
  var lx=lp.x*cw,ly=lp.y*ch;
  var isSel=(c===U.focB);
- var lbl=U.lang==="en"?CONFIG.BIOMI[c].en.N:CONFIG.BIOMI[c].it.N;
- var tw=ctx.measureText(lbl).width;
- var bw=tw+32,bh=44;
+ var bName=U.lang==="en"?CONFIG.BIOMI[c].en.N:CONFIG.BIOMI[c].it.N;
+ var stB=SIM.getBiomeLivingStats(S,c);
+ var capB=SIM.getBiomeMaxSlots(S,c);
+ var line1=bName;
+ var line2=stB.count+"/"+capB+" · "+stB.adults+"ad";
+ ctx.font="900 22px 'Plus Jakarta Sans', sans-serif";
+ var tw1=ctx.measureText(line1).width;
+ ctx.font="800 17px 'Plus Jakarta Sans', sans-serif";
+ var tw2=ctx.measureText(line2).width;
+ var bw=Math.max(tw1,tw2)+24,bh=50;
  ctx.fillStyle=CONFIG.CCOL[c];
  ctx.strokeStyle=isSel?"#ffffff":"#090d16";
- ctx.lineWidth=isSel?4.2:2.6;
- ctx.beginPath();ctx.roundRect(lx-bw*0.5,ly-bh*0.5,bw,bh,10);ctx.fill();ctx.stroke();
+ ctx.lineWidth=isSel?4:2.4;
+ ctx.beginPath();ctx.roundRect(lx-bw*0.5,ly-bh*0.5,bw,bh,9);ctx.fill();ctx.stroke();
  ctx.fillStyle=CONFIG.CLABEL_FG[c];
- ctx.fillText(lbl,lx,ly+1);
+ ctx.font="900 22px 'Plus Jakarta Sans', sans-serif";
+ ctx.fillText(line1,lx,ly-10);
+ ctx.font="800 17px 'Plus Jakarta Sans', sans-serif";
+ ctx.fillText(line2,lx,ly+12);
  }
 
  ctx.font="bold 13px 'Plus Jakarta Sans', sans-serif";
@@ -1735,22 +1790,6 @@ var UI={
  ctx.fillStyle="#f1f5f9";
  ctx.fillText(tagTxt,zX,zY+44);
  }
-
- /* Barra HUD compatta in alto */
- var hudTxt=bNome.toUpperCase()+" · "+this.tr("Vivi: ","Alive: ")+stats.count+"/"+SIM.getBiomeMaxSlots(S,b)+" · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
- ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
- var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
- ctx.fillStyle="rgba(9,13,22,0.88)";
- ctx.strokeStyle=CONFIG.CCOL[b];
- ctx.lineWidth=2.5;
- ctx.beginPath();
- ctx.roundRect((W-hudW)*0.5,12,hudW,32,10);
- ctx.fill();
- ctx.stroke();
- ctx.fillStyle="#fbbf24";
- ctx.textAlign="center";
- ctx.textBaseline="middle";
- ctx.fillText(hudTxt,W*0.5,28);
 
  if((B.fatigueRemaining||0)>0 || (B.forceDebuffTicks||0)>0){
  var warnTxt=this.tr("Stanchezza/Debuff guerra attivo","War fatigue/debuff active");
@@ -1899,6 +1938,7 @@ var UI={
  var avgAgeStr=bioStats.count>0?(bioStats.avgAge+" "+this.tr("anni","yrs")):"—";
  h+='<div class="map-box">'+
  '<div class="map-wrap"><canvas id="wb-map" width="1024" height="640"></canvas></div>'+
+ '<div class="dim" style="margin-top:6px;font-size:.74rem">'+this.tr("Etichetta bioma: Nome · Vivi/Max · Adulti (es. 4/5 · 2ad) · Freccia rossa = guerra attiva.","Biome tag: Name · Alive/Max · Adults (e.g. 4/5 · 2ad) · Red arrow = active war.")+'</div>'+
  '<div class="map-bar-bottom">'+
  '<div class="map-sel-stacked">'+
  '<span>'+this.tr("Animali vivi: ","Living animals: ")+'<b id="home-bio-alive">'+bioStats.count+'/25</b></span>'+
@@ -1962,7 +2002,7 @@ var UI={
  var etaInt=SIM.clamp(Math.floor(ind.eta),0,100);
  var slotCls="ind-slot "+ind.fase;
  h+='<div class="'+slotCls+'">'+
- '<div class="ind-top"><span class="ind-age">'+etaInt+'</span></div>'+
+ '<div class="ind-top"><span class="ind-age">'+etaInt+' '+UI.tr("anni","yrs")+'</span></div>'+
  '<div class="ind-bar"><u style="width:'+etaInt+'%"></u></div>'+
  '</div>';
  }
