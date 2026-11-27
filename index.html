@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v03)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v04)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v03",
+ VERSIONE:"NHW_new_v04",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v03",
+ SAVE_KEY:"nhw_living_cycle_new_v04",
 
  BIOMI:[
  {
@@ -1531,86 +1531,139 @@ var UI={
  },
 
  drawBiomeMiniMap:function(){
- var cv=document.getElementById("bio-map");if(!cv||!S)return;
- var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,b=SIM.clamp(U.focB,0,4);
- var tm=CONFIG.CTEMA[b]||CONFIG.CTEMA[0];
- var subW=192,subH=108,cw=W/subW,ch=H/subH;
- ctx.imageSmoothingEnabled=false;
+  var cv=document.getElementById("bio-map");if(!cv||!S)return;
+  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,b=SIM.clamp(U.focB,0,4);
+  var tm=CONFIG.CTEMA[b]||CONFIG.CTEMA[0];
+  var subW=192,subH=108,cw=W/subW,ch=H/subH;
+  ctx.imageSmoothingEnabled=false;
 
- for(var y=0;y<subH;y++)for(var x=0;x<subW;x++){
- var nx=(x-subW*0.5)/(subW*0.47),ny=(y-subH*0.50)/(subH*0.44);
- var r2=nx*nx+ny*ny;
- var wave=Math.sin(x*0.09+b)*0.08+Math.cos(y*0.11-b)*0.08+Math.sin((x+y)*0.06)*0.05;
- var h=1.14-r2+wave;
- if(h<0.04)ctx.fillStyle="#0b2242";
- else if(h<0.12)ctx.fillStyle="#14396b";
- else if(h<0.19)ctx.fillStyle="#1d548f";
- else if(h<0.26)ctx.fillStyle=tm.sand;
- else if(h>0.82)ctx.fillStyle=tm.rock;
- else if(h>0.60)ctx.fillStyle=tm.alt;
- else ctx.fillStyle=tm.land;
- ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
- }
+  for(var y=0;y<subH;y++)for(var x=0;x<subW;x++){
+   var nx=(x-subW*0.5)/(subW*0.47),ny=(y-subH*0.50)/(subH*0.44);
+   var r2=nx*nx+ny*ny;
+   var wave=Math.sin(x*0.09+b)*0.08+Math.cos(y*0.11-b)*0.08+Math.sin((x+y)*0.06)*0.05;
+   var h=1.14-r2+wave;
+   if(h<0.04)ctx.fillStyle="#0b2242";
+   else if(h<0.12)ctx.fillStyle="#14396b";
+   else if(h<0.19)ctx.fillStyle="#1d548f";
+   else if(h<0.26)ctx.fillStyle=tm.sand;
+   else if(h>0.82)ctx.fillStyle=tm.rock;
+   else if(h>0.60)ctx.fillStyle=tm.alt;
+   else ctx.fillStyle=tm.land;
+   ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
+  }
 
- var B=S.biomi[b],meta=CONFIG.BIOMI[b];
- if(!B||!meta)return;
- var stats=SIM.getBiomeLivingStats(S,b);
- var force=SIM.getBiomeForce(S,b);
- var bNome=U.lang==="en"?meta.en.N:meta.it.N;
+  var B=S.biomi[b],meta=CONFIG.BIOMI[b];
+  if(!B||!meta)return;
+  var stats=SIM.getBiomeLivingStats(S,b);
+  var force=SIM.getBiomeForce(S,b);
+  var bNome=U.lang==="en"?meta.en.N:meta.it.N;
 
- var spSummary=[];
- for(var k=0;k<5;k++){
- var aNome=U.lang==="en"?meta.animaliEn[k]:meta.animali[k];
- var inds=B.specie[k].individui||[];
- var adCnt=0;
- for(var i=0;i<inds.length;i++)if(inds[i].fase==="adulto")adCnt++;
- spSummary.push({nome:aNome,adulti:adCnt,tot:inds.length});
- }
+  ctx.imageSmoothingEnabled=true;
 
- ctx.imageSmoothingEnabled=true;
- var boxW=540,boxH=236;
- var bx=(W-boxW)*0.5,by=(H-boxH)*0.5;
+  /* Capitale del bioma al centro-alto dell'habitat */
+  var capX=W*0.5,capY=H*0.33;
+  ctx.save();
+  ctx.fillStyle="rgba(9,13,22,0.84)";
+  ctx.strokeStyle="#fbbf24";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.arc(capX,capY,26,0,Math.PI*2);
+  ctx.fill();
+  ctx.stroke();
 
- ctx.save();
- ctx.fillStyle="rgba(9, 13, 22, 0.86)";
- ctx.strokeStyle=CONFIG.CCOL[b];
- ctx.lineWidth=4;
- ctx.beginPath();
- ctx.roundRect(bx,by,boxW,boxH,16);
- ctx.fill();
- ctx.stroke();
+  ctx.fillStyle="#fbbf24";
+  ctx.font="900 18px 'Plus Jakarta Sans', sans-serif";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText("🏛️",capX,capY+1);
 
- ctx.fillStyle="#fbbf24";
- ctx.font="800 22px 'Cinzel', Georgia, serif";
- ctx.textAlign="center";
- ctx.textBaseline="top";
- ctx.fillText(bNome.toUpperCase()+" · "+this.tr("RIEPILOGO","SUMMARY"),W*0.5,by+16);
+  var capTxt=meta.capitale.toUpperCase();
+  ctx.font="800 14px 'Cinzel', Georgia, serif";
+  var capW=ctx.measureText(capTxt).width+20;
+  ctx.fillStyle="rgba(9,13,22,0.88)";
+  ctx.strokeStyle=CONFIG.CCOL[b];
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.roundRect(capX-capW*0.5,capY+30,capW,24,8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle="#f8fafc";
+  ctx.fillText(capTxt,capX,capY+42);
 
- ctx.fillStyle="#e2e8f0";
- ctx.font="700 17px 'Plus Jakarta Sans', sans-serif";
- var subLine=this.tr("Vivi: ","Alive: ")+stats.count+"/25 · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
- ctx.fillText(subLine,W*0.5,by+48);
+  /* Disposizione visiva degli individui vivi nell'habitat */
+  var phaseColors={cucciolo:"#22c55e",giovane:"#38bdf8",adulto:"#eab308",anziano:"#f97316",morente:"#ef4444"};
+  var speciesZones=[
+   {cx:0.22,cy:0.34},{cx:0.78,cy:0.34},{cx:0.20,cy:0.68},{cx:0.50,cy:0.72},{cx:0.80,cy:0.68}
+  ];
+  for(var k=0;k<5;k++){
+   var inds=B.specie[k].individui||[];
+   if(inds.length===0)continue;
+   var zone=speciesZones[k];
+   var zX=W*zone.cx,zY=H*zone.cy;
+   var aShort=(U.lang==="en"?meta.animaliEn[k]:meta.animali[k]);
+   var emojiChar=this.NHW_EMOJI[b+"_"+k]||"🐾";
 
- ctx.strokeStyle="rgba(148, 163, 184, 0.35)";
- ctx.lineWidth=1.5;
- ctx.beginPath();
- ctx.moveTo(bx+28,by+80);
- ctx.lineTo(bx+boxW-28,by+80);
- ctx.stroke();
+   for(var i=0;i<inds.length;i++){
+    var ang=(i/Math.max(1,inds.length))*Math.PI*2 - Math.PI*0.5;
+    var rad=inds.length===1?0:24;
+    var px=zX+Math.cos(ang)*rad;
+    var py=zY+Math.sin(ang)*rad*0.78;
+    var pCol=phaseColors[inds[i].fase]||"#eab308";
 
- ctx.font="800 18px 'Plus Jakarta Sans', sans-serif";
- for(var s=0;s<spSummary.length;s++){
- var rowY=by+94+s*26;
- var item=spSummary[s];
- ctx.textAlign="left";
- ctx.fillStyle="#f1f5f9";
- ctx.fillText(item.nome,bx+36,rowY);
+    ctx.fillStyle="rgba(9,13,22,0.85)";
+    ctx.strokeStyle=pCol;
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(px,py,17,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
 
- ctx.textAlign="right";
- ctx.fillStyle="#eab308";
- ctx.fillText(this.tr("Adulti: ","Adults: ")+item.adulti+" ("+item.tot+"/5)",bx+boxW-36,rowY);
- }
- ctx.restore();
+    ctx.font="18px 'Plus Jakarta Sans', sans-serif";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText(emojiChar,px,py+1);
+   }
+
+   /* Etichetta specie compatta sotto il branco */
+   ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+   var tagTxt=aShort+" ("+inds.length+"/5)";
+   var tw=ctx.measureText(tagTxt).width+14;
+   ctx.fillStyle="rgba(9,13,22,0.82)";
+   ctx.beginPath();
+   ctx.roundRect(zX-tw*0.5,zY+34,tw,20,6);
+   ctx.fill();
+   ctx.fillStyle="#f1f5f9";
+   ctx.fillText(tagTxt,zX,zY+44);
+  }
+
+  /* Barra HUD compatta in alto */
+  var hudTxt=bNome.toUpperCase()+"  ·  "+this.tr("Vivi: ","Alive: ")+stats.count+"/25  ·  "+this.tr("Adulti: ","Adults: ")+stats.adults+"  ·  "+this.tr("Forza: ","Force: ")+force;
+  ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
+  var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
+  ctx.fillStyle="rgba(9,13,22,0.88)";
+  ctx.strokeStyle=CONFIG.CCOL[b];
+  ctx.lineWidth=2.5;
+  ctx.beginPath();
+  ctx.roundRect((W-hudW)*0.5,12,hudW,32,10);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle="#fbbf24";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText(hudTxt,W*0.5,28);
+
+  if((B.fatigueRemaining||0)>0 || (B.forceDebuffTicks||0)>0){
+   var warnTxt=this.tr("Stanchezza/Debuff guerra attivo","War fatigue/debuff active");
+   ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+   var ww=ctx.measureText(warnTxt).width+20;
+   ctx.fillStyle="rgba(127,29,29,0.92)";
+   ctx.beginPath();
+   ctx.roundRect((W-ww)*0.5,H-32,ww,22,7);
+   ctx.fill();
+   ctx.fillStyle="#fecaca";
+   ctx.fillText(warnTxt,W*0.5,H-21);
+  }
+  ctx.restore();
  },
 
  handleMapTap:function(ev){
