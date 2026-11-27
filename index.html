@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v04)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v05)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v04",
+ VERSIONE:"NHW_new_v05",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v04",
+ SAVE_KEY:"nhw_living_cycle_new_v05",
 
  BIOMI:[
  {
@@ -1129,48 +1129,64 @@ var SIM={
  this.addLog(st,"Ruota di Furia: "+prize.itEvent,"Furia's Wheel: "+prize.enEvent,true);
  },
 
+ finishWheelNow:function(st){
+  if(!st||!st.specialWheel)return;
+  if(!st.specialWheel.resolved){
+   var pObj=CONFIG.WHEEL_PRIZES[st.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+   this.applyWheelPrize(st,pObj);
+   st.specialWheel.resolved=true;
+  }
+  st.specialWheel.expiresAt=0;
+  st.specialWheel=null;
+  st.prossimoLancio=st.t+this.getLancioIntervalSec(st);
+  U.wheelSpinning=false;
+ },
+
  triggerSpecialWheel:function(st,instantResolve){
- var idx=Math.floor(this.nextRnd(st)*CONFIG.WHEEL_PRIZES.length);
- var prize=CONFIG.WHEEL_PRIZES[idx];
- if(instantResolve){
- this.applyWheelPrize(st,prize);
- st.specialWheel=null;
- return;
- }
- var targetRot=1080+(360-prize.angle);
- st.specialWheel={prizeIdx:idx,spun:false,resolved:false,targetRot:targetRot};
- U.wheelRot=0;
- U.wheelSpinning=false;
- clearTimeout(U.wheelTimer);
- clearTimeout(U.wheelEndTimer);
- AUDIO.play("wheel");
+  var idx=Math.floor(this.nextRnd(st)*CONFIG.WHEEL_PRIZES.length);
+  var prize=CONFIG.WHEEL_PRIZES[idx];
+  if(instantResolve){
+   this.applyWheelPrize(st,prize);
+   st.specialWheel=null;
+   return;
+  }
+  var targetRot=1080+(360-prize.angle);
+  var nowMs=Date.now();
+  st.specialWheel={prizeIdx:idx,spun:false,resolved:false,targetRot:targetRot,startedAt:nowMs,expiresAt:nowMs+5200};
+  U.wheelRot=0;
+  U.wheelSpinning=false;
+  clearTimeout(U.wheelTimer);
+  clearTimeout(U.wheelEndTimer);
+  clearTimeout(U.wheelClearTimer);
+  AUDIO.play("wheel");
 
- U.wheelTimer=setTimeout(function(){
- if(!S||!S.specialWheel)return;
- S.specialWheel.spun=true;
- U.wheelSpinning=true;
- U.wheelRot=targetRot;
- UI.renderFull();
+  U.wheelTimer=setTimeout(function(){
+   if(!S||!S.specialWheel)return;
+   S.specialWheel.spun=true;
+   U.wheelSpinning=true;
+   U.wheelRot=targetRot;
+   UI.renderFull();
 
- var dur=UI.motoRidotto()?150:2500;
- U.wheelEndTimer=setTimeout(function(){
- if(!S||!S.specialWheel)return;
- var pObj=CONFIG.WHEEL_PRIZES[S.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
- SIM.applyWheelPrize(S,pObj);
- S.specialWheel.resolved=true;
- U.wheelSpinning=false;
- SAVE.saveLocal();
- UI.renderFull();
+   var dur=UI.motoRidotto()?150:2200;
+   U.wheelEndTimer=setTimeout(function(){
+    if(!S||!S.specialWheel)return;
+    var pObj=CONFIG.WHEEL_PRIZES[S.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+    if(!S.specialWheel.resolved){
+     SIM.applyWheelPrize(S,pObj);
+     S.specialWheel.resolved=true;
+    }
+    U.wheelSpinning=false;
+    SAVE.saveLocal();
+    UI.renderFull();
 
- setTimeout(function(){
- if(!S)return;
- S.specialWheel=null;
- S.prossimoLancio=S.t+SIM.getLancioIntervalSec(S);
- SAVE.saveLocal();
- UI.renderFull();
- },2400);
- },dur);
- },120);
+    U.wheelClearTimer=setTimeout(function(){
+     if(!S||!S.specialWheel)return;
+     SIM.finishWheelNow(S);
+     SAVE.saveLocal();
+     UI.renderFull();
+    },1800);
+   },dur);
+  },100);
  },
 
  lanciaDadiD20:function(st,isManual,isOffline){
@@ -1374,7 +1390,8 @@ var U={
  wheelRot:0,
  wheelSpinning:false,
  wheelTimer:null,
- wheelEndTimer:null
+ wheelEndTimer:null,
+ wheelClearTimer:null
 };
 
 var UI={
@@ -1531,139 +1548,139 @@ var UI={
  },
 
  drawBiomeMiniMap:function(){
-  var cv=document.getElementById("bio-map");if(!cv||!S)return;
-  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,b=SIM.clamp(U.focB,0,4);
-  var tm=CONFIG.CTEMA[b]||CONFIG.CTEMA[0];
-  var subW=192,subH=108,cw=W/subW,ch=H/subH;
-  ctx.imageSmoothingEnabled=false;
+ var cv=document.getElementById("bio-map");if(!cv||!S)return;
+ var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,b=SIM.clamp(U.focB,0,4);
+ var tm=CONFIG.CTEMA[b]||CONFIG.CTEMA[0];
+ var subW=192,subH=108,cw=W/subW,ch=H/subH;
+ ctx.imageSmoothingEnabled=false;
 
-  for(var y=0;y<subH;y++)for(var x=0;x<subW;x++){
-   var nx=(x-subW*0.5)/(subW*0.47),ny=(y-subH*0.50)/(subH*0.44);
-   var r2=nx*nx+ny*ny;
-   var wave=Math.sin(x*0.09+b)*0.08+Math.cos(y*0.11-b)*0.08+Math.sin((x+y)*0.06)*0.05;
-   var h=1.14-r2+wave;
-   if(h<0.04)ctx.fillStyle="#0b2242";
-   else if(h<0.12)ctx.fillStyle="#14396b";
-   else if(h<0.19)ctx.fillStyle="#1d548f";
-   else if(h<0.26)ctx.fillStyle=tm.sand;
-   else if(h>0.82)ctx.fillStyle=tm.rock;
-   else if(h>0.60)ctx.fillStyle=tm.alt;
-   else ctx.fillStyle=tm.land;
-   ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
-  }
+ for(var y=0;y<subH;y++)for(var x=0;x<subW;x++){
+ var nx=(x-subW*0.5)/(subW*0.47),ny=(y-subH*0.50)/(subH*0.44);
+ var r2=nx*nx+ny*ny;
+ var wave=Math.sin(x*0.09+b)*0.08+Math.cos(y*0.11-b)*0.08+Math.sin((x+y)*0.06)*0.05;
+ var h=1.14-r2+wave;
+ if(h<0.04)ctx.fillStyle="#0b2242";
+ else if(h<0.12)ctx.fillStyle="#14396b";
+ else if(h<0.19)ctx.fillStyle="#1d548f";
+ else if(h<0.26)ctx.fillStyle=tm.sand;
+ else if(h>0.82)ctx.fillStyle=tm.rock;
+ else if(h>0.60)ctx.fillStyle=tm.alt;
+ else ctx.fillStyle=tm.land;
+ ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
+ }
 
-  var B=S.biomi[b],meta=CONFIG.BIOMI[b];
-  if(!B||!meta)return;
-  var stats=SIM.getBiomeLivingStats(S,b);
-  var force=SIM.getBiomeForce(S,b);
-  var bNome=U.lang==="en"?meta.en.N:meta.it.N;
+ var B=S.biomi[b],meta=CONFIG.BIOMI[b];
+ if(!B||!meta)return;
+ var stats=SIM.getBiomeLivingStats(S,b);
+ var force=SIM.getBiomeForce(S,b);
+ var bNome=U.lang==="en"?meta.en.N:meta.it.N;
 
-  ctx.imageSmoothingEnabled=true;
+ ctx.imageSmoothingEnabled=true;
 
-  /* Capitale del bioma al centro-alto dell'habitat */
-  var capX=W*0.5,capY=H*0.33;
-  ctx.save();
-  ctx.fillStyle="rgba(9,13,22,0.84)";
-  ctx.strokeStyle="#fbbf24";
-  ctx.lineWidth=3;
-  ctx.beginPath();
-  ctx.arc(capX,capY,26,0,Math.PI*2);
-  ctx.fill();
-  ctx.stroke();
+ /* Capitale del bioma al centro-alto dell'habitat */
+ var capX=W*0.5,capY=H*0.33;
+ ctx.save();
+ ctx.fillStyle="rgba(9,13,22,0.84)";
+ ctx.strokeStyle="#fbbf24";
+ ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.arc(capX,capY,26,0,Math.PI*2);
+ ctx.fill();
+ ctx.stroke();
 
-  ctx.fillStyle="#fbbf24";
-  ctx.font="900 18px 'Plus Jakarta Sans', sans-serif";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.fillText("🏛️",capX,capY+1);
+ ctx.fillStyle="#fbbf24";
+ ctx.font="900 18px 'Plus Jakarta Sans', sans-serif";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText("🏛️",capX,capY+1);
 
-  var capTxt=meta.capitale.toUpperCase();
-  ctx.font="800 14px 'Cinzel', Georgia, serif";
-  var capW=ctx.measureText(capTxt).width+20;
-  ctx.fillStyle="rgba(9,13,22,0.88)";
-  ctx.strokeStyle=CONFIG.CCOL[b];
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.roundRect(capX-capW*0.5,capY+30,capW,24,8);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle="#f8fafc";
-  ctx.fillText(capTxt,capX,capY+42);
+ var capTxt=meta.capitale.toUpperCase();
+ ctx.font="800 14px 'Cinzel', Georgia, serif";
+ var capW=ctx.measureText(capTxt).width+20;
+ ctx.fillStyle="rgba(9,13,22,0.88)";
+ ctx.strokeStyle=CONFIG.CCOL[b];
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ ctx.roundRect(capX-capW*0.5,capY+30,capW,24,8);
+ ctx.fill();
+ ctx.stroke();
+ ctx.fillStyle="#f8fafc";
+ ctx.fillText(capTxt,capX,capY+42);
 
-  /* Disposizione visiva degli individui vivi nell'habitat */
-  var phaseColors={cucciolo:"#22c55e",giovane:"#38bdf8",adulto:"#eab308",anziano:"#f97316",morente:"#ef4444"};
-  var speciesZones=[
-   {cx:0.22,cy:0.34},{cx:0.78,cy:0.34},{cx:0.20,cy:0.68},{cx:0.50,cy:0.72},{cx:0.80,cy:0.68}
-  ];
-  for(var k=0;k<5;k++){
-   var inds=B.specie[k].individui||[];
-   if(inds.length===0)continue;
-   var zone=speciesZones[k];
-   var zX=W*zone.cx,zY=H*zone.cy;
-   var aShort=(U.lang==="en"?meta.animaliEn[k]:meta.animali[k]);
-   var emojiChar=this.NHW_EMOJI[b+"_"+k]||"🐾";
+ /* Disposizione visiva degli individui vivi nell'habitat */
+ var phaseColors={cucciolo:"#22c55e",giovane:"#38bdf8",adulto:"#eab308",anziano:"#f97316",morente:"#ef4444"};
+ var speciesZones=[
+ {cx:0.22,cy:0.34},{cx:0.78,cy:0.34},{cx:0.20,cy:0.68},{cx:0.50,cy:0.72},{cx:0.80,cy:0.68}
+ ];
+ for(var k=0;k<5;k++){
+ var inds=B.specie[k].individui||[];
+ if(inds.length===0)continue;
+ var zone=speciesZones[k];
+ var zX=W*zone.cx,zY=H*zone.cy;
+ var aShort=(U.lang==="en"?meta.animaliEn[k]:meta.animali[k]);
+ var emojiChar=this.NHW_EMOJI[b+"_"+k]||"🐾";
 
-   for(var i=0;i<inds.length;i++){
-    var ang=(i/Math.max(1,inds.length))*Math.PI*2 - Math.PI*0.5;
-    var rad=inds.length===1?0:24;
-    var px=zX+Math.cos(ang)*rad;
-    var py=zY+Math.sin(ang)*rad*0.78;
-    var pCol=phaseColors[inds[i].fase]||"#eab308";
+ for(var i=0;i<inds.length;i++){
+ var ang=(i/Math.max(1,inds.length))*Math.PI*2 - Math.PI*0.5;
+ var rad=inds.length===1?0:24;
+ var px=zX+Math.cos(ang)*rad;
+ var py=zY+Math.sin(ang)*rad*0.78;
+ var pCol=phaseColors[inds[i].fase]||"#eab308";
 
-    ctx.fillStyle="rgba(9,13,22,0.85)";
-    ctx.strokeStyle=pCol;
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    ctx.arc(px,py,17,0,Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
+ ctx.fillStyle="rgba(9,13,22,0.85)";
+ ctx.strokeStyle=pCol;
+ ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.arc(px,py,17,0,Math.PI*2);
+ ctx.fill();
+ ctx.stroke();
 
-    ctx.font="18px 'Plus Jakarta Sans', sans-serif";
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
-    ctx.fillText(emojiChar,px,py+1);
-   }
+ ctx.font="18px 'Plus Jakarta Sans', sans-serif";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText(emojiChar,px,py+1);
+ }
 
-   /* Etichetta specie compatta sotto il branco */
-   ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
-   var tagTxt=aShort+" ("+inds.length+"/5)";
-   var tw=ctx.measureText(tagTxt).width+14;
-   ctx.fillStyle="rgba(9,13,22,0.82)";
-   ctx.beginPath();
-   ctx.roundRect(zX-tw*0.5,zY+34,tw,20,6);
-   ctx.fill();
-   ctx.fillStyle="#f1f5f9";
-   ctx.fillText(tagTxt,zX,zY+44);
-  }
+ /* Etichetta specie compatta sotto il branco */
+ ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+ var tagTxt=aShort+" ("+inds.length+"/5)";
+ var tw=ctx.measureText(tagTxt).width+14;
+ ctx.fillStyle="rgba(9,13,22,0.82)";
+ ctx.beginPath();
+ ctx.roundRect(zX-tw*0.5,zY+34,tw,20,6);
+ ctx.fill();
+ ctx.fillStyle="#f1f5f9";
+ ctx.fillText(tagTxt,zX,zY+44);
+ }
 
-  /* Barra HUD compatta in alto */
-  var hudTxt=bNome.toUpperCase()+"  ·  "+this.tr("Vivi: ","Alive: ")+stats.count+"/25  ·  "+this.tr("Adulti: ","Adults: ")+stats.adults+"  ·  "+this.tr("Forza: ","Force: ")+force;
-  ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
-  var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
-  ctx.fillStyle="rgba(9,13,22,0.88)";
-  ctx.strokeStyle=CONFIG.CCOL[b];
-  ctx.lineWidth=2.5;
-  ctx.beginPath();
-  ctx.roundRect((W-hudW)*0.5,12,hudW,32,10);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle="#fbbf24";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.fillText(hudTxt,W*0.5,28);
+ /* Barra HUD compatta in alto */
+ var hudTxt=bNome.toUpperCase()+" · "+this.tr("Vivi: ","Alive: ")+stats.count+"/25 · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
+ ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
+ var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
+ ctx.fillStyle="rgba(9,13,22,0.88)";
+ ctx.strokeStyle=CONFIG.CCOL[b];
+ ctx.lineWidth=2.5;
+ ctx.beginPath();
+ ctx.roundRect((W-hudW)*0.5,12,hudW,32,10);
+ ctx.fill();
+ ctx.stroke();
+ ctx.fillStyle="#fbbf24";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText(hudTxt,W*0.5,28);
 
-  if((B.fatigueRemaining||0)>0 || (B.forceDebuffTicks||0)>0){
-   var warnTxt=this.tr("Stanchezza/Debuff guerra attivo","War fatigue/debuff active");
-   ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
-   var ww=ctx.measureText(warnTxt).width+20;
-   ctx.fillStyle="rgba(127,29,29,0.92)";
-   ctx.beginPath();
-   ctx.roundRect((W-ww)*0.5,H-32,ww,22,7);
-   ctx.fill();
-   ctx.fillStyle="#fecaca";
-   ctx.fillText(warnTxt,W*0.5,H-21);
-  }
-  ctx.restore();
+ if((B.fatigueRemaining||0)>0 || (B.forceDebuffTicks||0)>0){
+ var warnTxt=this.tr("Stanchezza/Debuff guerra attivo","War fatigue/debuff active");
+ ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+ var ww=ctx.measureText(warnTxt).width+20;
+ ctx.fillStyle="rgba(127,29,29,0.92)";
+ ctx.beginPath();
+ ctx.roundRect((W-ww)*0.5,H-32,ww,22,7);
+ ctx.fill();
+ ctx.fillStyle="#fecaca";
+ ctx.fillText(warnTxt,W*0.5,H-21);
+ }
+ ctx.restore();
  },
 
  handleMapTap:function(ev){
@@ -1698,29 +1715,30 @@ var UI={
  },
 
  renderSpecialWheel:function(){
- var sw=S.specialWheel;
- var prize=CONFIG.WHEEL_PRIZES[sw.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
- var rot=U.wheelRot||0;
- var segIcons=["💧","✨","🌿","😺","⏳","💎"];
- var segsHtml="";
- for(var i=0;i<6;i++){
- var deg=i*60+30;
- segsHtml+='<div class="wheel-seg-ico" style="transform:rotate('+deg+'deg) translateY(-54px) rotate(-'+deg+'deg)">'+segIcons[i]+'</div>';
- }
- var statusTxt=sw.resolved
- ?this.esc(U.lang==="en"?prize.enLabel:prize.itLabel)
- :this.tr("La ruota gira...","The wheel spins...");
+  var sw=S.specialWheel;
+  var prize=CONFIG.WHEEL_PRIZES[sw.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+  var rot=sw.spun?(sw.targetRot||U.wheelRot||1080):0;
+  var segIcons=["💧","✨","🌿","😺","⏳","💎"];
+  var segsHtml="";
+  for(var i=0;i<6;i++){
+   var deg=i*60+30;
+   segsHtml+='<div class="wheel-seg-ico" style="transform:rotate('+deg+'deg) translateY(-48px) rotate(-'+deg+'deg)">'+segIcons[i]+'</div>';
+  }
+  var statusTxt=sw.resolved
+   ?this.esc(U.lang==="en"?prize.enLabel:prize.itLabel)
+   :this.tr("La ruota gira...","The wheel spins...");
 
- return '<div class="wheel-stage">'+
- '<div class="wheel-wrap">'+
- '<div class="wheel-pointer"></div>'+
- '<div class="wheel-disc" style="transform:rotate('+rot+'deg)">'+
- '<div class="wheel-labels">'+segsHtml+'</div>'+
- '</div>'+
- '<div class="wheel-hub">🐾</div>'+
- '</div>'+
- '<div class="wheel-status">'+statusTxt+'</div>'+
- '</div>';
+  return '<div class="wheel-stage">'+
+   '<div class="wheel-wrap">'+
+   '<div class="wheel-pointer"></div>'+
+   '<div class="wheel-disc" style="transform:rotate('+rot+'deg)">'+
+   '<div class="wheel-labels">'+segsHtml+'</div>'+
+   '</div>'+
+   '<div class="wheel-hub">🐾</div>'+
+   '</div>'+
+   '<div class="wheel-status">'+statusTxt+'</div>'+
+   '<button type="button" class="mini on" data-a="finishWheel">'+this.tr("Continua","Continue")+'</button>'+
+   '</div>';
  },
 
  renderMiniDiary3:function(){
@@ -2133,7 +2151,7 @@ var UI={
  var p=document.getElementById("p");
  if(U.view==="bioma"){
  p.innerHTML=this.biomaHtml();
- this.drawBiomeMiniMap();
+ try{this.drawBiomeMiniMap();}catch(e){}
  }else if(U.view==="menu"){
  p.innerHTML=this.menuHtml();
  }else if(U.view==="guerre"){
@@ -2146,7 +2164,7 @@ var UI={
  p.innerHTML=this.homeHtml();
  var cv=document.getElementById("wb-map");
  if(cv)cv.addEventListener("click",this.handleMapTap);
- this.drawWorldMap();
+ try{this.drawWorldMap();}catch(e){}
  }
  if(U.diceAnim>0)U.diceAnim=Math.max(0,U.diceAnim-0.25);
  }
@@ -2218,6 +2236,7 @@ function agisci(a,el){
  }else UI.toast(UI.tr("Codice non valido","Invalid code"));
  }catch(e){UI.toast(UI.tr("Codice non valido","Invalid code"));}
  }
+ else if(a==="finishWheel"){clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);SIM.finishWheelNow(S);}
  else if(a==="reset"){
  clearTimeout(U.wheelTimer);
  clearTimeout(U.wheelEndTimer);
@@ -2269,6 +2288,7 @@ function avvia(){
 
  setInterval(function(){
  if(!S||document.hidden||U.vel<=0||S.specialWheel)return;
+  if(S&&S.specialWheel&&S.specialWheel.expiresAt&&Date.now()>=S.specialWheel.expiresAt){SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();}
  var steps=U.vel===10?5:1;
  var needFull=false;
  for(var k=0;k<steps;k++){
@@ -2289,7 +2309,7 @@ document.addEventListener("visibilitychange",function(){if(document.hidden)SAVE.
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvia);else avvia();
 if("serviceWorker" in navigator){
  window.addEventListener("load",function(){
-  navigator.serviceWorker.register("./sw.js").catch(function(){});
+ navigator.serviceWorker.register("./sw.js").catch(function(){});
  });
 }
 

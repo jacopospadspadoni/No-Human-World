@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14112a">
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="No Human World">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+
+<title>No Human World · Ciclo della Vita (NHW_new_v05)</title>
+<style>
+:root{
+ --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
+ --font-sans:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+ --bg:#090d16;
+ --panel:#111726;
+ --card:#182034;
+ --card2:#212c46;
+ --border:#2d3b5c;
+ --amber:#f59e0b;
+ --amber2:#fbbf24;
+ --teal:#10b981;
+ --red:#ef4444;
+ --blue:#3b82f6;
+ --purple:#a855f7;
+ --ash:#f97316;
+ --furia:#b56576;
+ --t:#f1f5f9;
+ --m:#94a3b8;
+ --die-bg:#faf8f5;
+ --die-fg:#1e293b;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;max-width:100%}
+html,body{overflow-x:hidden;width:100%}
+body{
+ background:radial-gradient(circle at 50% 22%,#141c33 0%,#090d16 68%,#06080f 100%);
+ color:#F2F4FF;
+ font:14px/1.42 var(--font-sans);
+ padding-bottom:calc(88px + env(safe-area-inset-bottom,0px));
+ font-variant-numeric:tabular-nums;
+ min-height:100vh;
+}
+body.no-motion *,body.no-motion *::before,body.no-motion *::after{animation:none!important;transition:none!important}
+h1,h2,.brand,.city-hero b,.frame-hd span{font-family:var(--font-serif);letter-spacing:.03em}
+
+header{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:1px solid var(--border);padding:calc(8px + env(safe-area-inset-top,0px)) 10px 8px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.98rem;color:var(--t)}
+.brand .ico{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--amber));display:inline-flex;align-items:center;justify-content:center;color:#090d16;font-weight:900;font-size:.9rem;flex-shrink:0}
+.brand small{font-weight:500;color:var(--m);font-size:.74rem}
+.badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 9px;font-size:.76rem;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.pill.gold{border-color:#78350f;color:var(--amber2)}
+.pill.essence{border-color:#581c87;color:#e9d5ff}
+.pill.ash{border-color:#9a3412;color:#fed7aa}
+.pill.teal{border-color:#065f46;color:#34d399}
+
+#p{padding:8px 9px 18px;max-width:540px;margin:0 auto}
+
+.qbox{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:9px}
+.qbox-hd{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:800;font-size:.9rem}
+.qbox-hd small{color:var(--m);font-weight:600;font-size:.74rem}
+
+.furia-head-line{font-size:.86rem;font-weight:800;color:#e9d5ff;line-height:1.3;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.furia-dice-num{font-size:1.12rem;font-weight:900;color:#ef4444;line-height:1;display:inline-block;margin:0 2px}
+.take-dice-cue{font-size:.86rem;font-weight:800;color:#e9d5ff;line-height:1.22;letter-spacing:.01em;display:block}
+
+.cat-voice{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--purple);border-radius:9px;padding:8px 10px}
+
+/* === STILE DADI QUADRATI E 25 FACCE === */
+.dice{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0;max-width:100%}
+.dice-row{display:flex;justify-content:center;gap:8px;width:100%}
+.die{width:92px;max-width:30%;aspect-ratio:1/1;height:auto;border-radius:15px;background:var(--die-bg);color:var(--die-fg);border:5px solid #cbd5e1;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;will-change:transform;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.22);padding:4px 2px}
+.die-ico{display:flex;align-items:center;justify-content:center;height:40px;font-size:2.05rem}
+.die small{font-size:.78rem;font-weight:800;margin-top:3px;letter-spacing:.01em;color:var(--die-fg);text-align:center;padding:0 2px}
+.die.w{transform:scale(1.05)}
+.die.rolling{animation:diceRoll .28s ease-out}
+@keyframes diceRoll{0%{transform:scale(.82) rotate(-8deg);opacity:.65}60%{transform:scale(1.06) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.die.idle-slot{background:var(--card);border:2px dashed var(--border);color:var(--m);font-size:.76rem;font-weight:700;text-align:center;padding:4px;box-shadow:none;opacity:.62}
+
+.dice-stage-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%}
+.dice-stage-row .dice{flex:1;min-width:0}
+.roll-col{display:flex;flex-direction:column;align-items:center;gap:6px;width:118px;flex-shrink:0;text-align:center}
+.cta-lancia{width:100px;height:100px;min-width:100px;min-height:100px;border-radius:50%;background:var(--amber2);color:#090d16;border:2px solid var(--amber);padding:6px;font-weight:900;font-size:.7rem;line-height:1.12;cursor:pointer;box-shadow:0 3px 0 #b45309,0 6px 14px rgba(245,158,11,.28);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+.cta-lancia:active:not(:disabled){transform:translateY(2px)}
+.cta-lancia:disabled{opacity:.48;cursor:default;box-shadow:none}
+
+.roll-cd-box{width:100%;display:flex;flex-direction:column;align-items:center;gap:2px}
+.roll-cd-sec{font-size:.86rem;font-weight:900;color:var(--amber2);line-height:1.1}
+.pbar{width:100%;height:6px;background:#090d16;border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-top:2px}
+.pbar u{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));transition:width .25s linear}
+
+.combo-banner{border:1.5px solid #090d16;color:#090d16;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:900;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.22)}
+
+/* === RUOTA EVENTO SPECIALE === */
+.wheel-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.wheel-wrap{position:relative;width:176px;height:176px;display:flex;align-items:center;justify-content:center}
+.wheel-pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:16px solid #ef4444;z-index:3;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.wheel-disc{width:164px;height:164px;border-radius:50%;border:4px solid #f8fafc;box-shadow:0 4px 16px rgba(0,0,0,.45);transition:transform 2.4s cubic-bezier(.15,.85,.22,1);position:relative;overflow:hidden;background:conic-gradient(
+ #22a06b 0deg 60deg,
+ #d4a017 60deg 120deg,
+ #14919b 120deg 180deg,
+ #2563eb 180deg 240deg,
+ #d2b48c 240deg 300deg,
+ #a855f7 300deg 360deg
+)}
+.wheel-hub{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:#090d16;border:2px solid #fbbf24;color:#fbbf24;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;z-index:2}
+.wheel-labels{position:absolute;inset:0;pointer-events:none}
+.wheel-seg-ico{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:900;color:#090d16;text-shadow:0 1px 0 rgba(255,255,255,.55)}
+.wheel-status{font-size:.82rem;font-weight:800;color:#fde68a;text-align:center}
+
+@media(max-width:400px){
+ .dice-stage-row{gap:6px}
+ .roll-col{width:102px}
+ .furia-head-line,.take-dice-cue{font-size:.76rem}
+ .furia-dice-num{font-size:1rem}
+ .cta-lancia{width:88px;height:88px;min-width:88px;min-height:88px;font-size:.64rem}
+ .die{width:78px}
+ .die-ico{height:34px;font-size:1.8rem}
+}
+
+.map-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px}
+.map-wrap{position:relative;border-radius:10px;overflow:hidden;border:2px solid #2b4570;background:#0b1f3a;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+#wb-map,#bio-map{width:100%;height:auto;display:block;touch-action:manipulation;cursor:pointer;image-rendering:crisp-edges}
+.map-bar-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid var(--border);font-size:.82rem;color:var(--m)}
+.map-sel-stacked{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.map-sel-stacked span{font-size:.78rem;color:#cbd5e1;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-sel-stacked b{color:var(--t);font-weight:800}
+
+/* Mini-diario 3 righe */
+.mini-diary-box{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:8px 10px;margin-bottom:9px}
+.mini-diary-box ul{list-style:none;font-size:.76rem;color:#cbd5e1}
+.mini-diary-box li{padding:2px 0;border-bottom:1px dashed rgba(148,163,184,.2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-diary-box li:last-child{border-bottom:none}
+
+.frame{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px;margin-bottom:10px}
+.frame-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:800;font-size:.96rem;flex-wrap:wrap}
+.banner{background:#1f1c14;border:1px solid #78350f;color:#fde68a;border-radius:8px;padding:8px 10px;font-size:.82rem;margin-bottom:10px}
+
+/* Selettore rapido biomi nel pannello Biomi */
+.biome-switcher{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:10px}
+.biome-sw-btn{
+ background:var(--card);color:var(--m);border:1px solid var(--border);border-radius:8px;
+ padding:6px 3px;min-height:38px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.biome-sw-btn.on{background:var(--amber);color:#090d16;border-color:var(--amber)}
+.biome-sw-btn .dot-st{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+.city-hero{background:linear-gradient(135deg,rgba(24,32,52,.95) 0%,var(--card) 100%);border:1px solid var(--border);border-left:5px solid var(--cc);border-radius:10px;padding:10px;margin-bottom:10px}
+.city-hero small{display:block;color:var(--t);font-size:.84rem;line-height:1.45}
+
+/* Griglia a 5 colonne */
+.species-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.sp-col{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--cc);border-radius:9px;padding:5px 4px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.sp-col-hd{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.sp-col-hd b{font-size:.69rem;line-height:1.15;color:var(--t);word-break:break-word}
+.ind-slot{background:var(--panel);border:2px solid var(--border);border-radius:6px;padding:5px 4px;display:flex;flex-direction:column;gap:4px;min-height:42px;justify-content:center}
+.ind-slot.empty{opacity:.42;border-style:dashed;align-items:center}
+.ind-slot.cucciolo{border-color:#22c55e;background:rgba(34,197,94,.12)}
+.ind-slot.giovane{border-color:#38bdf8;background:rgba(56,189,248,.12)}
+.ind-slot.adulto{border-color:#eab308;background:rgba(234,179,8,.12)}
+.ind-slot.anziano{border-color:#f97316;background:rgba(249,115,22,.14)}
+.ind-slot.morente{border-color:#ef4444;background:rgba(239,68,68,.18)}
+.ind-top{display:flex;justify-content:center;align-items:center;font-size:.76rem;font-weight:900;line-height:1.1}
+.ind-age{color:var(--t)}
+.ind-bar{height:5px;background:#090d16;border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.ind-bar u{display:block;height:100%;transition:width .25s}
+.ind-slot.cucciolo .ind-bar u{background:#22c55e}
+.ind-slot.giovane .ind-bar u{background:#38bdf8}
+.ind-slot.adulto .ind-bar u{background:#eab308}
+.ind-slot.anziano .ind-bar u{background:#f97316}
+.ind-slot.morente .ind-bar u{background:#ef4444}
+
+@media(max-width:380px){
+ .species-cols{gap:3px}
+ .sp-col{padding:4px 2px}
+ .sp-col-hd b{font-size:.62rem}
+ .ind-top{font-size:.7rem}
+}
+
+/* Sviluppo (Semi d'Eco + Rituali di Cenere) */
+.upg-sec-hd{font-size:.78rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;margin:10px 0 6px;display:flex;justify-content:space-between;align-items:center}
+.upg-sec-hd.eco{color:#e9d5ff}
+.upg-sec-hd.ash{color:#fed7aa}
+.upg-list{display:flex;flex-direction:column;gap:8px}
+.upg-row{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--purple);border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.upg-row.ash-row{border-left-color:var(--ash)}
+.upg-meta{flex:1;min-width:0}
+.upg-meta b{font-size:.88rem;display:block}
+.upg-meta small{display:block;color:var(--m);font-size:.75rem;margin-top:2px}
+.upg-lvl{display:inline-block;margin-top:4px;font-size:.7rem;font-weight:800;color:#e9d5ff;background:rgba(168,85,247,.16);border:1px solid rgba(168,85,247,.38);padding:2px 7px;border-radius:999px}
+.upg-row.ash-row .upg-lvl{color:#fed7aa;background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42)}
+.upg-price-btn{background:var(--purple);color:#ffffff;border:1px solid #c084fc;border-radius:9px;padding:8px 11px;min-height:44px;min-width:98px;font:inherit;font-size:.8rem;font-weight:900;cursor:pointer;white-space:nowrap;text-align:center;flex-shrink:0}
+.upg-price-btn.ash-btn{background:#ea580c;border-color:#fb923c}
+.upg-price-btn:disabled{background:var(--card2);color:var(--m);border-color:var(--border);opacity:.5;cursor:default}
+
+/* Pannello Guerre */
+.war-subtabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.war-sub-btn{background:var(--card);color:var(--m);border:1px solid var(--border);border-radius:8px;padding:7px 8px;min-height:38px;font:inherit;font-size:.76rem;font-weight:800;cursor:pointer}
+.war-sub-btn.on{background:var(--amber);color:#090d16;border-color:var(--amber)}
+.war-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px;margin-bottom:9px}
+.war-card-hd{display:flex;justify-content:space-between;font-size:.74rem;color:var(--m);margin-bottom:6px}
+.war-visual{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;margin:6px 0 8px}
+.war-bubble{background:var(--panel);border:2px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center;font-weight:800;font-size:.8rem}
+.war-bubble.atk{border-color:var(--red)}
+.war-bubble.def{border-color:var(--blue)}
+.war-arrows{text-align:center;font-size:.76rem;color:var(--amber2);font-weight:900;padding:0 3px}
+.war-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:.74rem;background:var(--panel);padding:7px 8px;border-radius:8px}
+.furia-war-note{margin-top:7px;font-size:.74rem;color:#f2a2b3;background:#231820;border-left:3px solid var(--furia);padding:5px 8px;border-radius:6px}
+
+/* Stats a due colonne: Numeri e Diario */
+.stats-two-col{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;align-items:start}
+.stats-col{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px;min-width:0}
+.stats-col-hd{font-family:var(--font-serif);font-size:.86rem;font-weight:800;color:var(--amber2);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.num-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 8px;margin-bottom:6px}
+.num-item small{display:block;color:var(--m);font-size:.68rem}
+.num-item b{display:block;font-size:.9rem;color:var(--t);margin-top:1px}
+.diary-entry{border-left:3px solid var(--amber);padding:5px 7px;margin-bottom:6px;background:var(--card);border-radius:0 6px 6px 0;font-size:.74rem;line-height:1.32;word-break:break-word}
+.diary-entry span{color:var(--amber2);font-weight:800;margin-right:3px}
+
+@media(max-width:420px){
+ .stats-two-col{gap:6px}
+ .stats-col{padding:7px}
+ .num-item b{font-size:.82rem}
+ .diary-entry{font-size:.7rem;padding:4px 6px}
+}
+
+.btn,.mini{font:inherit;border:1px solid var(--border);background:var(--card2);color:var(--t);border-radius:8px;padding:7px 10px;min-height:44px;cursor:pointer;font-weight:700;font-size:.8rem;flex-shrink:0}
+.btn.on,.mini.on{background:var(--amber);color:#090d16;border-color:var(--amber)}
+.btn.big{width:100%;margin-top:6px;background:var(--amber);color:#090d16;font-weight:800;padding:11px}
+.btn:disabled,.mini:disabled{opacity:.45;cursor:default}
+.mini.help-opt-btn{background:var(--card2);color:var(--amber2);border-color:var(--amber);font-weight:900}
+.row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0}
+.opt-section-lbl{font-size:.76rem;font-weight:800;color:var(--amber2);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 4px}
+.dim{color:var(--m);font-size:.82rem}
+
+textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);border:1px solid var(--border);border-radius:8px;padding:7px;font-family:monospace;font-size:.74rem;margin-top:6px}
+
+/* Barra inferiore a 5 pulsanti uguali */
+#bottom-nav{
+ position:fixed;left:0;right:0;bottom:0;z-index:25;
+ display:grid;grid-template-columns:repeat(5,1fr);align-items:center;gap:5px;
+ background:rgba(17,23,38,.97);border-top:1px solid var(--border);
+ padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+}
+.nav-btn{
+ background:var(--card);color:var(--m);border:1px solid var(--border);border-radius:10px;
+ padding:5px 2px;min-height:48px;font:inherit;font-size:.67rem;font-weight:800;
+ cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nav-btn.on{background:var(--amber);color:#090d16;border-color:var(--amber)}
+
+#modal{display:none}
+#modal.on{display:flex;position:fixed;inset:0;background:rgba(6,8,15,.78);align-items:center;justify-content:center;padding:14px;z-index:50}
+#modal .mbox{background:var(--panel);border:1.5px solid var(--amber);border-radius:12px;padding:14px;max-width:440px;width:100%;max-height:82vh;overflow-y:auto}
+.help-section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:.8rem;line-height:1.4;color:var(--t)}
+.help-section b{color:var(--amber2);display:block;margin-bottom:2px}
+#toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--amber);color:#090d16;font-weight:800;padding:8px 14px;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:92%;text-align:center}
+#toast.on{opacity:1}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<header id="top-hdr">
+ <div class="brand"><span class="ico">🌿</span><div><span id="tit">No Human World</span><br><small id="subtit"></small></div></div>
+ <div class="badges">
+ <span class="pill gold" id="bdg-f">💧 0 Linfa</span>
+ <span class="pill essence" id="bdg-e">✨ 0</span>
+ <span class="pill ash" id="bdg-c">🔥 0</span>
+ <span class="pill teal" id="bdg-life">🐾 0/125</span>
+ </div>
+</header>
+<div id="p"></div>
+<div id="modal"></div>
+<div id="bottom-nav">
+ <button class="nav-btn" data-a="go" data-v="bioma"><span>🌿</span><span id="nav-bioma">Biomi</span></button>
+ <button class="nav-btn" data-a="go" data-v="menu"><span>⚙</span><span id="nav-menu">Sviluppo</span></button>
+ <button class="nav-btn" data-a="go" data-v="guerre"><span>⚔️</span><span id="nav-guerre">Guerre</span></button>
+ <button class="nav-btn" data-a="go" data-v="stats"><span>📊</span><span id="nav-stats">Stats</span></button>
+ <button class="nav-btn" data-a="go" data-v="opzioni"><span>🎛</span><span id="nav-opzioni">Opzioni</span></button>
+</div>
+<div id="toast"></div>
+<script>
+"use strict";
+
+/* ============================================================================
+ * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
+ * ============================================================================ */
+var CONFIG={
+ VERSIONE:"NHW_new_v05",
+ SCHEMA_VERSIONE:23,
+ SAVE_KEY:"nhw_living_cycle_new_v05",
+
+ BIOMI:[
+ {
+ id:"bosco",capitale:"Verdal",
+ it:{n:"bosco",N:"Bosco",desc:"Radure umide dove la Linfa scorre tra radici, muschi e tane silenziose."},
+ en:{n:"wood",N:"Wood",desc:"Damp clearings where Sap runs through roots, moss and quiet dens."},
+ animali:["Ghiro","Lepre","Cervo","Lupo","Gufo"],
+ animaliEn:["Dormouse","Hare","Deer","Wolf","Owl"]
+ },
+ {
+ id:"savana",capitale:"Ombasa",
+ it:{n:"savana",N:"Savana",desc:"Distese battute dal sole dove i branchi crescono compatti."},
+ en:{n:"savanna",N:"Savanna",desc:"Sunlit plains where herds grow as one."},
+ animali:["Zebra","Giraffa","Elefante","Leone","Facocero"],
+ animaliEn:["Zebra","Giraffe","Elephant","Lion","Warthog"]
+ },
+ {
+ id:"oceano",capitale:"Corallia",
+ it:{n:"oceano",N:"Oceano",desc:"Maree profonde che custodiscono riserve silenziose di Linfa."},
+ en:{n:"ocean",N:"Ocean",desc:"Deep tides holding quiet reserves of Sap."},
+ animali:["Delfino","Testuga","Polpo","Squalo","Balena"],
+ animaliEn:["Dolphin","Tortoise","Octopus","Shark","Whale"]
+ },
+ {
+ id:"monti",capitale:"Altorin",
+ it:{n:"monti",N:"Monti",desc:"Vette d'aria sottile dove la vita resiste e rinasce ad alta quota."},
+ en:{n:"mountains",N:"Mountains",desc:"Thin-air peaks where life endures and returns high above."},
+ animali:["Lontra","Salmone","Daino","Orso","Aquila"],
+ animaliEn:["Otter","Salmon","Fallow Deer","Bear","Eagle"]
+ },
+ {
+ id:"prateria",capitale:"Caelis",
+ it:{n:"prateria",N:"Prateria",desc:"Pianure aperte dove il ciclo delle stagioni non si ferma mai."},
+ en:{n:"prairie",N:"Prairie",desc:"Sweeping plains where the cycle of seasons never stops."},
+ animali:["Struzzo","Volpe","Cavallo","Bisonte","Falco"],
+ animaliEn:["Ostrich","Fox","Horse","Bison","Falcon"]
+ }
+ ],
+
+ CCOL:["#22a06b","#d4a017","#14919b","#2563eb","#d2b48c"],
+ CLABEL_FG:["#f8fafc","#090d16","#f8fafc","#f8fafc","#090d16"],
+ CTEMA:[
+ {land:"#2f5a3f",alt:"#1e3f2b",rock:"#475569",sand:"#b8b29c"},
+ {land:"#c5961a",alt:"#9e7510",rock:"#64748b",sand:"#e6d39a"},
+ {land:"#1b6f75",alt:"#134e52",rock:"#475569",sand:"#b7d3d4"},
+ {land:"#244c8a",alt:"#1a3666",rock:"#64748b",sand:"#cbd5e1"},
+ {land:"#cbb089",alt:"#ab916a",rock:"#64748b",sand:"#e6dac6"}
+ ],
+
+ FURIA_TEMPERAMENTS:[
+ {id:"annoiato",it:"annoiato",en:"bored",weights:[0.34,0.30,0.18,0.10,0.08]},
+ {id:"curioso",it:"curioso",en:"curious",weights:[0.20,0.20,0.20,0.20,0.20]},
+ {id:"vivace",it:"vivace",en:"lively",weights:[0.12,0.18,0.26,0.24,0.20]},
+ {id:"contento",it:"contento",en:"happy",weights:[0.08,0.12,0.20,0.28,0.32]}
+ ],
+
+ BASE_SCORES:{
+ pokerissimo_colore:1000,
+ colore:740,
+ full_colore:690,
+ poker_colore:620,
+ pokerissimo:460,
+ doppia_coppia_colore:430,
+ tris_colore:330,
+ poker:210,
+ full:150,
+ coppia_colore:130,
+ tris:60,
+ doppia_coppia:20,
+ coppia:10,
+ nessuna:1
+ },
+
+ COMBO_BG_SCALE:{
+ nessuna:"#ffffff",
+ coppia:"#fff1f2",
+ doppia_coppia:"#ffe4e6",
+ tris:"#fecdd3",
+ coppia_colore:"#fda4af",
+ full:"#fb7185",
+ poker:"#f87171",
+ tris_colore:"#f43f5e",
+ doppia_coppia_colore:"#ef4444",
+ pokerissimo:"#e11d48",
+ poker_colore:"#dc2626",
+ full_colore:"#b91c1c",
+ colore:"#991b1b",
+ pokerissimo_colore:"#ef0000"
+ },
+
+ /* Parametri calibrati tramite simulazioni Monte Carlo su NHW_new_v02 */
+ REGOLE:{
+ passo:1,
+ secPerAnno:9,
+ lancioSec:15,
+ respiroSec:10,
+ temperamentoTickSec:18,
+ dadiTot:5,
+ maxIndividuiPerSpecie:5,
+ maxSlotBioma:25,
+ minSlotAttacco:20,
+ minAdultiAttacco:10,
+ minAdultiDifesa:4,
+ baseHitChance:0.15,
+ defenderBonus:0.01,
+ defenderCounterChance:0.12,
+ maxConcludedWarsShown:20,
+ forzaBaseCosto:650,
+ forzaCooldownSec:4,
+ offlineMaxSec:28800,
+ wheelTriggerEveryRolls:12
+ },
+
+ FURIA_WAR_SLICES:[
+ {id:"fatigue_light",it:"Stanchezza Lieve (+15 tick)",en:"Light Fatigue (+15 ticks)",type:"fatigue",value:15},
+ {id:"fatigue_heavy",it:"Stanchezza Pesante (+40 tick)",en:"Heavy Fatigue (+40 ticks)",type:"fatigue",value:40},
+ {id:"lose_young",it:"Sbandamento (-1 Giovane)",en:"Disarray (-1 Young)",type:"lose_young",value:1},
+ {id:"lose_elder",it:"Inquietudine (-1 Anziano)",en:"Restlessness (-1 Elder)",type:"lose_elder",value:1},
+ {id:"force_debuff",it:"Ritorsione (-15% forza per 20 tick)",en:"Retaliation (-15% force for 20 ticks)",type:"force_debuff",value:20}
+ ],
+
+ WHEEL_PRIZES:[
+ {id:"pioggia_linfa",angle:30,itLabel:"+450 Linfa",enLabel:"+450 Sap",itEvent:"un'ondata di Linfa dorata inonda le radure (+450 Linfa).",enEvent:"a wave of golden Sap floods the clearings (+450 Sap)."},
+ {id:"semi_eco",angle:90,itLabel:"+3 Semi d'Eco",enLabel:"+3 Echo Seeds",itEvent:"tre Semi d'Eco affiorano dalle radici antiche (+3 Semi d'Eco).",enEvent:"three Echo Seeds surface from ancient roots (+3 Echo Seeds)."},
+ {id:"benedizione_nascite",angle:150,itLabel:"Nuova Vita",enLabel:"New Life",itEvent:"un soffio vitale favorisce nuove nascite nei biomi (+600 Linfa).",enEvent:"a vital breeze encourages new births across biomes (+600 Sap)."},
+ {id:"furia_contenta",angle:210,itLabel:"Furia Contenta",enLabel:"Happy Furia",itEvent:"Furia fa le fusa e diventa subito contento per i prossimi lanci.",enEvent:"Furia purrs and immediately turns happy for upcoming rolls."},
+ {id:"soffio_giovinezza",angle:270,itLabel:"Soffio Vitale",enLabel:"Vital Breath",itEvent:"un vento tiepido ringiovanisce gli animali vivi di 5 anni.",enEvent:"a warm wind rejuvenates living animals by 5 years."},
+ {id:"tesoro_antico",angle:330,itLabel:"+900 Linfa",enLabel:"+900 Sap",itEvent:"un antico scrigno di Linfa si schiude al centro dell'isola (+900 Linfa).",enEvent:"an ancient chest of Sap opens at the center of the island (+900 Sap)."}
+ ],
+
+ UPGRADES_ECO:[
+ {id:"stimolo_furia",currency:"semi",max:5,baseCost:3,mult:2,itN:"Stimolo del temperamento",enN:"Temperament Treat",itD:"Invoglia Furia a lanciare più dadi per volta (+4% peso verso 4–5 dadi).",enD:"Encourages Furia to throw more dice at once (+4% weight toward 4–5 dice)."},
+ {id:"richiamo_dadi",currency:"semi",max:5,baseCost:4,mult:2,itN:"Richiamo dei dadi",enN:"Dice Call",itD:"Riduce di 1 secondo l'attesa tra un lancio di Furia e il successivo.",enD:"Reduces the wait between Furia's automatic rolls by 1 second."},
+ {id:"mano_lesta",currency:"semi",max:5,baseCost:5,mult:2,itN:"Presa sicura",enN:"Steady Hand",itD:"Riduce del 10% il costo in Linfa di «...lanciali tutti tu!».",enD:"Reduces the Sap cost of «...roll them all yourself!» by 10%."},
+ {id:"risonanza_bioma",currency:"semi",max:5,baseCost:6,mult:2,itN:"Risonanza dei biomi",enN:"Biome Resonance",itD:"+15% Linfa prodotta dalle combinazioni con Colore (su lancio da 5 dadi).",enD:"+15% Sap produced by Color combinations (on 5-dice rolls)."},
+ {id:"eco_ciclo",currency:"semi",max:5,baseCost:4,mult:2,itN:"Eco del ciclo",enN:"Cycle Echo",itD:"+1 Seme d'Eco extra ogni volta che un animale chiude il ciclo vitale.",enD:"+1 extra Echo Seed every time an animal completes its life cycle."}
+ ],
+
+ UPGRADES_ASH:[
+ {id:"scudo_bioma",currency:"cenere",max:5,baseCost:25,mult:2,itN:"Scudo del Bioma",enN:"Biome Shield",itD:"+2% contrattacco difensivo dei biomi e -1% probabilità di colpo nemico per livello.",enD:"+2% biome defensive counter-attack and -1% enemy hit chance per level."},
+ {id:"tempra_guerriera",currency:"cenere",max:5,baseCost:30,mult:2,itN:"Tempra Guerriera",enN:"War Grit",itD:"-12% durata della stanchezza e del debuff della Ruota di Furia per livello.",enD:"-12% duration of war fatigue and Furia's Wheel debuff per level."},
+ {id:"seme_ardente",currency:"cenere",max:5,baseCost:20,mult:2,itN:"Seme Ardente",enN:"Ember Seed",itD:"-7% costo in Linfa per la nascita di ogni nuovo cucciolo nei biomi.",enD:"-7% Sap cost for every new cub born across biomes."}
+ ]
+};
+
+/* ============================================================================
+ * 2. AUDIO ENGINE (Lightweight procedural Web Audio API, zero external assets)
+ * ============================================================================ */
+var AUDIO={
+ ctx:null,
+ enabled:true,
+ unlock:function(){
+ if(!this.enabled)return;
+ try{
+ var AC=window.AudioContext||window.webkitAudioContext;
+ if(!AC)return;
+ if(!this.ctx)this.ctx=new AC();
+ if(this.ctx.state==="suspended")this.ctx.resume();
+ }catch(e){}
+ },
+ tone:function(freq,dur,type,vol,delay){
+ if(!this.enabled)return;
+ this.unlock();
+ if(!this.ctx)return;
+ try{
+ var now=this.ctx.currentTime+(delay||0);
+ var osc=this.ctx.createOscillator();
+ var gain=this.ctx.createGain();
+ osc.type=type||"sine";
+ osc.frequency.setValueAtTime(freq,now);
+ gain.gain.setValueAtTime(Math.max(0.001,vol||0.04),now);
+ gain.gain.exponentialRampToValueAtTime(0.0008,now+(dur||0.12));
+ osc.connect(gain);
+ gain.connect(this.ctx.destination);
+ osc.start(now);
+ osc.stop(now+(dur||0.12)+0.02);
+ }catch(e){}
+ },
+ play:function(kind){
+ if(!this.enabled)return;
+ if(kind==="roll"){
+ this.tone(240,0.06,"triangle",0.035,0);
+ this.tone(320,0.07,"triangle",0.035,0.05);
+ }else if(kind==="combo"){
+ this.tone(440,0.11,"sine",0.045,0);
+ this.tone(554,0.12,"sine",0.045,0.07);
+ this.tone(659,0.16,"sine",0.05,0.14);
+ }else if(kind==="wheel"){
+ this.tone(392,0.08,"triangle",0.04,0);
+ this.tone(523,0.08,"triangle",0.04,0.08);
+ this.tone(659,0.10,"triangle",0.04,0.16);
+ this.tone(784,0.18,"sine",0.05,0.24);
+ }else if(kind==="war_def"){
+ this.tone(330,0.12,"sine",0.045,0);
+ this.tone(495,0.18,"sine",0.05,0.09);
+ }else if(kind==="buy"){
+ this.tone(520,0.08,"sine",0.04,0);
+ this.tone(740,0.12,"sine",0.045,0.06);
+ }
+ }
+};
+
+/* ============================================================================
+ * 3. PURE SIMULATION ENGINE (DOM-independent logic)
+ * ============================================================================ */
+var SIM={
+ clamp:function(v,a,b){return v<a?a:(v>b?b:v);},
+
+ nextRnd:function(st){
+ st.rng=(st.rng+0x6D2B79F5)|0;
+ var t=Math.imul(st.rng^(st.rng>>>15),1|st.rng);
+ t=(t+Math.imul(t^(t>>>7),61|t))^t;
+ return ((t^(t>>>14))>>>0)/4294967296;
+ },
+
+ getUpgLvl:function(st,id){
+ return (st.upgrades&&st.upgrades[id])||0;
+ },
+
+ getUpgCost:function(def,lvl){
+ return Math.round(def.baseCost*Math.pow(def.mult,lvl));
+ },
+
+ getLancioIntervalSec:function(st){
+ return Math.max(5,CONFIG.REGOLE.lancioSec-this.getUpgLvl(st,"richiamo_dadi"));
+ },
+
+ getManualRollCost:function(st){
+ var disc=1-0.10*this.getUpgLvl(st,"mano_lesta");
+ return Math.max(150,Math.round(CONFIG.REGOLE.forzaBaseCosto*this.clamp(disc,0.4,1)));
+ },
+
+ getBirthCostForIndividual:function(st,valoreSpecie,cuccioliStessaSpecie,cuccioliAltreSpecieBioma){
+ var baseCost=100*this.clamp(valoreSpecie,1,5);
+ var mult=1+(0.50*cuccioliStessaSpecie)+(0.12*cuccioliAltreSpecieBioma);
+ var ashDisc=1-0.07*this.getUpgLvl(st,"seme_ardente");
+ return Math.max(30,Math.round(baseCost*mult*this.clamp(ashDisc,0.5,1)));
+ },
+
+ getFaseFromEta:function(eta){
+ if(eta>=90)return "morente";
+ if(eta>=60)return "anziano";
+ if(eta>=20)return "adulto";
+ if(eta>=10)return "giovane";
+ return "cucciolo";
+ },
+
+ makeIndividual:function(spId,num){
+ return {id:spId+"_"+num,eta:0,fase:"cucciolo"};
+ },
+
+ addLog:function(st,itMsg,enMsg,priority){
+ st.logCounter=(st.logCounter||0)+1;
+ if(!priority && (st.logCounter%2===1))return;
+ st.diario.unshift({t:Math.floor(st.t),it:itMsg,en:enMsg});
+ if(st.diario.length>40)st.diario.pop();
+ },
+
+ countCuccioliInSpecies:function(sp){
+ var c=0,inds=sp.individui||[];
+ for(var i=0;i<inds.length;i++)if(inds[i].fase==="cucciolo")c++;
+ return c;
+ },
+
+ contaIndividuiVivi:function(st){
+ var c=0;
+ for(var b=0;b<st.biomi.length;b++){
+ for(var k=0;k<5;k++)c+=(st.biomi[b].specie[k].individui||[]).length;
+ }
+ return c;
+ },
+
+ contaBiomiVivi:function(st){
+ var c=0;
+ for(var b=0;b<st.biomi.length;b++)if(st.biomi[b].sbloccato)c++;
+ return c;
+ },
+
+ getBiomeLivingStats:function(st,bIdx){
+ var B=st.biomi[bIdx];
+ if(!B)return {count:0,avgAge:0,adults:0};
+ var count=0,sumAge=0,adults=0;
+ for(var k=0;k<5;k++){
+ var inds=B.specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ count++;
+ sumAge+=(inds[i].eta||0);
+ if(inds[i].fase==="adulto")adults++;
+ }
+ }
+ return {
+ count:count,
+ avgAge:count>0?Math.round((sumAge/count)*10)/10:0,
+ adults:adults
+ };
+ },
+
+ getBiomeForce:function(st,bIdx){
+ var B=st.biomi[bIdx];
+ if(!B)return 0;
+ var force=0;
+ for(var k=0;k<5;k++){
+ var val=(k+1);
+ var inds=B.specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ var f=inds[i].fase;
+ if(f==="adulto")force+=4*val;
+ else if(f==="giovane")force+=2*val;
+ else if(f==="anziano")force+=1.5*val;
+ }
+ }
+ if((B.forceDebuffTicks||0)>0)force*=0.85;
+ return Math.round(force);
+ },
+
+ getBiomeRarityAvg:function(st,bIdx,includeAll){
+ var B=st.biomi[bIdx];
+ if(!B)return 1;
+ var sum=0,cnt=0;
+ for(var k=0;k<5;k++){
+ var val=(k+1);
+ var inds=B.specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ var f=inds[i].fase;
+ if(includeAll || f==="adulto" || f==="giovane" || f==="anziano"){
+ sum+=val;
+ cnt++;
+ }
+ }
+ }
+ return cnt>0?(sum/cnt):1;
+ },
+
+ getWarHitChance:function(st,atkIdx,defIdx){
+ var atkRar=this.getBiomeRarityAvg(st,atkIdx,false)*0.02;
+ var defRar=this.getBiomeRarityAvg(st,defIdx,true)*0.02;
+ var shieldBonus=0.01*this.getUpgLvl(st,"scudo_bioma");
+ var raw=CONFIG.REGOLE.baseHitChance+atkRar-(defRar+CONFIG.REGOLE.defenderBonus+shieldBonus);
+ return Math.max(0.02,raw);
+ },
+
+ getDefenderCounterChance:function(st){
+ return CONFIG.REGOLE.defenderCounterChance+(0.02*this.getUpgLvl(st,"scudo_bioma"));
+ },
+
+ processAutonomousBirths:function(st){
+ var bornCount=0;
+ for(var b=0;b<st.biomi.length;b++){
+ var B=st.biomi[b],meta=CONFIG.BIOMI[b];
+ for(var k=0;k<5;k++){
+ var sp=B.specie[k];
+ var val=sp.valore||(k+1);
+ while((sp.individui||[]).length<CONFIG.REGOLE.maxIndividuiPerSpecie){
+ var cuccSpecie=this.countCuccioliInSpecies(sp);
+ var cuccAltriBioma=0;
+ for(var j=0;j<5;j++){
+ if(j!==k)cuccAltriBioma+=this.countCuccioliInSpecies(B.specie[j]);
+ }
+ var cost=this.getBirthCostForIndividual(st,val,cuccSpecie,cuccAltriBioma);
+ if(st.linfa<cost)break;
+
+ st.linfa-=cost;
+ st.stats.nascite++;
+ bornCount++;
+ sp.individui.push(this.makeIndividual(meta.animali[k],st.stats.nascite));
+
+ if(!B.sbloccato){
+ B.sbloccato=true;
+ this.addLog(st,meta.it.N+" ha preso vita con il primo cucciolo di "+meta.animali[k]+"!",meta.en.N+" came to life with the first "+meta.animaliEn[k]+" cub!",true);
+ }else{
+ this.addLog(st,meta.it.N+": nuovo cucciolo di "+meta.animali[k]+" nato.",meta.en.N+": new "+meta.animaliEn[k]+" cub born.",false);
+ }
+ }
+ }
+ }
+ return bornCount;
+ },
+
+ aggiornaTemperamentoFuria:function(st){
+ var prevIdx=st.temperamentoIdx||0;
+ var nextIdx=Math.floor(this.nextRnd(st)*CONFIG.FURIA_TEMPERAMENTS.length);
+ st.temperamentoIdx=nextIdx;
+ if(nextIdx!==prevIdx){
+ var tObj=CONFIG.FURIA_TEMPERAMENTS[nextIdx];
+ this.addLog(st,"Furia ora sembra "+tObj.it+".","Furia now feels "+tObj.en+".",false);
+ }
+ },
+
+ scegliNumeroDadiFuria:function(st){
+ var tObj=CONFIG.FURIA_TEMPERAMENTS[st.temperamentoIdx||0]||CONFIG.FURIA_TEMPERAMENTS[1];
+ var boost=this.clamp(0.04*this.getUpgLvl(st,"stimolo_furia"),0,0.22);
+ var w=tObj.weights.slice();
+ w[0]=Math.max(0.04,w[0]-boost*0.45);
+ w[1]=Math.max(0.06,w[1]-boost*0.35);
+ w[3]=w[3]+boost*0.40;
+ w[4]=w[4]+boost*0.40;
+
+ var tot=0;
+ for(var i=0;i<w.length;i++)tot+=w[i];
+ var r=this.nextRnd(st)*tot;
+ var acc=0;
+ for(var k=0;k<w.length;k++){
+ acc+=w[k];
+ if(r<=acc)return k+1;
+ }
+ return 3;
+ },
+
+ avanzaCicloVita:function(st,dtSec){
+ var deltaEta=(dtSec/CONFIG.REGOLE.secPerAnno);
+ var semiPerCiclo=1+this.getUpgLvl(st,"eco_ciclo");
+
+ for(var b=0;b<st.biomi.length;b++){
+ var B=st.biomi[b],meta=CONFIG.BIOMI[b];
+ if(!B.sbloccato)continue;
+ for(var k=0;k<5;k++){
+ var sp=B.specie[k];
+ var nomeIt=meta.animali[k],nomeEn=meta.animaliEn[k];
+ var nextList=[];
+
+ for(var i=0;i<(sp.individui||[]).length;i++){
+ var ind=sp.individui[i];
+ var prevFase=ind.fase;
+ ind.eta=Math.min(100,ind.eta+deltaEta);
+
+ if(ind.eta>=100){
+ sp.cicliCompiuti=(sp.cicliCompiuti||0)+1;
+ st.stats.mortiCiclo++;
+ st.semi=(st.semi||0)+semiPerCiclo;
+ st.semiTotali=(st.semiTotali||0)+semiPerCiclo;
+ st.cenere=(st.cenere||0)+1;
+ st.cenereTotale=(st.cenereTotale||0)+1;
+ this.addLog(st,meta.it.N+": "+nomeIt+" ha chiuso il ciclo (+"+semiPerCiclo+" Semi d'Eco, +1 Cenere).",meta.en.N+": "+nomeEn+" completed its cycle (+"+semiPerCiclo+" Echo Seeds, +1 Ash).",true);
+ continue;
+ }
+
+ ind.fase=this.getFaseFromEta(ind.eta);
+ if(ind.fase!==prevFase){
+ if(ind.fase==="adulto")st.stats.evoluzioni++;
+ if(ind.fase==="morente"){
+ this.addLog(st,meta.it.N+": "+nomeIt+" è entrato negli ultimi anni.",meta.en.N+": "+nomeEn+" entered its final years.",false);
+ }
+ }
+ nextList.push(ind);
+ }
+ sp.individui=nextList;
+ }
+ }
+ },
+
+ pickAndKillTargetInBiome:function(st,defIdx,includeWeak){
+ var B=st.biomi[defIdx];
+ if(!B)return null;
+ var prio=includeWeak?["adulto","anziano","giovane","morente","cucciolo"]:["adulto","anziano","giovane"];
+ for(var p=0;p<prio.length;p++){
+ var targetFase=prio[p];
+ for(var k=4;k>=0;k--){
+ var inds=B.specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ if(inds[i].fase===targetFase){
+ inds.splice(i,1);
+ return targetFase;
+ }
+ }
+ }
+ }
+ return null;
+ },
+
+ removeOneByPhase:function(st,bIdx,targetFase){
+ var B=st.biomi[bIdx];
+ if(!B)return false;
+ for(var k=0;k<5;k++){
+ var inds=B.specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ if(inds[i].fase===targetFase){
+ inds.splice(i,1);
+ return true;
+ }
+ }
+ }
+ return false;
+ },
+
+ applyFuriaWarWheel:function(st,atkIdx,multiplier,wonWars){
+ var B=st.biomi[atkIdx],meta=CONFIG.BIOMI[atkIdx];
+ if(!B||!meta)return;
+ var slice=CONFIG.FURIA_WAR_SLICES[Math.floor(this.nextRnd(st)*CONFIG.FURIA_WAR_SLICES.length)];
+ var gritMult=this.clamp(1-0.12*this.getUpgLvl(st,"tempra_guerriera"),0.35,1);
+ var effVal=slice.type==="fatigue"||slice.type==="force_debuff"
+ ?Math.max(3,Math.round(slice.value*multiplier*gritMult))
+ :(slice.value*multiplier);
+ var descIt="",descEn="";
+
+ if(slice.type==="fatigue"){
+ B.fatigueRemaining=(B.fatigueRemaining||0)+effVal;
+ descIt="+"+effVal+" tick di stanchezza di guerra";
+ descEn="+"+effVal+" war fatigue ticks";
+ }else if(slice.type==="lose_young"){
+ var removedY=0;
+ for(var r1=0;r1<effVal;r1++)if(this.removeOneByPhase(st,atkIdx,"giovane"))removedY++;
+ descIt="perde "+removedY+" giovane/i";
+ descEn="loses "+removedY+" young";
+ }else if(slice.type==="lose_elder"){
+ var removedE=0;
+ for(var r2=0;r2<effVal;r2++)if(this.removeOneByPhase(st,atkIdx,"anziano"))removedE++;
+ descIt="perde "+removedE+" anziano/i";
+ descEn="loses "+removedE+" elder(s)";
+ }else if(slice.type==="force_debuff"){
+ B.forceDebuffTicks=(B.forceDebuffTicks||0)+effVal;
+ descIt="-15% forza per "+effVal+" tick";
+ descEn="-15% force for "+effVal+" ticks";
+ }
+
+ var multStr=multiplier>1?" (x2)":"";
+ st.lastFuriaWarNote={
+ it:"Ruota di Furia su "+meta.it.N+multStr+": "+slice.it+" → "+descIt+".",
+ en:"Furia's Wheel on "+meta.en.N+multStr+": "+slice.en+" → "+descEn+"."
+ };
+ this.addLog(st,st.lastFuriaWarNote.it,st.lastFuriaWarNote.en,true);
+
+ for(var w=0;w<wonWars.length;w++){
+ wonWars[w].furiaIt=slice.it+multStr+" → "+descIt;
+ wonWars[w].furiaEn=slice.en+multStr+" → "+descEn;
+ }
+ },
+
+ trimConcludedWars:function(st){
+ if(!st.guerre)return;
+ var active=[],concluded=[];
+ for(var i=0;i<st.guerre.length;i++){
+ if(st.guerre[i].active)active.push(st.guerre[i]);
+ else concluded.push(st.guerre[i]);
+ }
+ if(concluded.length>CONFIG.REGOLE.maxConcludedWarsShown){
+ concluded=concluded.slice(concluded.length-CONFIG.REGOLE.maxConcludedWarsShown);
+ }
+ st.guerre=concluded.concat(active);
+ },
+
+ initiateAutonomousWars:function(st){
+ if(!st.guerre)st.guerre=[];
+ for(var a=0;a<CONFIG.BIOMI.length;a++){
+ var B=st.biomi[a];
+ if(!B||!B.sbloccato||(B.fatigueRemaining||0)>0)continue;
+ var statsA=this.getBiomeLivingStats(st,a);
+ if(statsA.count<CONFIG.REGOLE.minSlotAttacco || statsA.adults<CONFIG.REGOLE.minAdultiAttacco)continue;
+
+ var alreadyAtk=false;
+ for(var w=0;w<st.guerre.length;w++){
+ if(st.guerre[w].active && st.guerre[w].atkIdx===a){alreadyAtk=true;break;}
+ }
+ if(alreadyAtk)continue;
+
+ var forceA=this.getBiomeForce(st,a);
+ var maxBudget=forceA*1.2;
+ var remBudget=maxBudget;
+
+ for(var d=0;d<CONFIG.BIOMI.length;d++){
+ if(d===a || remBudget<=0)continue;
+ var statsD=this.getBiomeLivingStats(st,d);
+ var forceD=this.getBiomeForce(st,d);
+ if(statsD.adults<CONFIG.REGOLE.minAdultiDifesa || forceD>forceA)continue;
+
+ var alloc=Math.min(remBudget,Math.max(1,Math.min(forceD,forceA)));
+ remBudget-=alloc;
+
+ st.guerre.push({
+ id:"w_"+Math.floor(st.t)+"_"+a+"_"+d,
+ atkIdx:a,
+ defIdx:d,
+ allocatedForce:Math.round(alloc),
+ startAtkAdults:statsA.adults,
+ startDefAdults:statsD.adults,
+ endAtkAdults:null,
+ endDefAdults:null,
+ enemyKills:0,
+ ownAdultLosses:0,
+ ticksElapsed:0,
+ cenereGained:0,
+ winnerIt:"",
+ winnerEn:"",
+ furiaIt:"",
+ furiaEn:"",
+ active:true
+ });
+ this.addLog(st,CONFIG.BIOMI[a].it.N+" attacca "+CONFIG.BIOMI[d].it.N+" (forza "+Math.round(alloc)+").",CONFIG.BIOMI[a].en.N+" attacks "+CONFIG.BIOMI[d].en.N+" (force "+Math.round(alloc)+").",true);
+ }
+ }
+ },
+
+ stepWarsTick:function(st,isOffline){
+ if(!st.guerre)st.guerre=[];
+ var attackerWinsThisTick=[];
+ var anyConcluded=false;
+ var defWinTriggered=false;
+
+ for(var i=0;i<st.guerre.length;i++){
+ var w=st.guerre[i];
+ if(!w.active)continue;
+ var stA=this.getBiomeLivingStats(st,w.atkIdx);
+ var stD=this.getBiomeLivingStats(st,w.defIdx);
+
+ if(stA.adults<=0 || stD.adults<=0){
+ w.active=false;
+ anyConcluded=true;
+ w.endAtkAdults=stA.adults;
+ w.endDefAdults=stD.adults;
+ if(stA.adults<=0 && stD.adults>0){
+ var ashPrize=35+w.enemyKills*6;
+ st.cenere=(st.cenere||0)+ashPrize;
+ st.cenereTotale=(st.cenereTotale||0)+ashPrize;
+ st.stats.guerreVinteDif=(st.stats.guerreVinteDif||0)+1;
+ w.cenereGained=ashPrize;
+ w.winnerIt=CONFIG.BIOMI[w.defIdx].it.N;
+ w.winnerEn=CONFIG.BIOMI[w.defIdx].en.N;
+ w.furiaIt="Nessuna punizione (attaccante respinto).";
+ w.furiaEn="No punishment (attacker repelled).";
+ defWinTriggered=true;
+ this.addLog(st,CONFIG.BIOMI[w.defIdx].it.N+" respinge "+CONFIG.BIOMI[w.atkIdx].it.N+" (+"+ashPrize+" Cenere).",CONFIG.BIOMI[w.defIdx].en.N+" repels "+CONFIG.BIOMI[w.atkIdx].en.N+" (+"+ashPrize+" Ash).",true);
+ }else{
+ st.stats.guerreVinteAtk=(st.stats.guerreVinteAtk||0)+1;
+ w.cenereGained=0;
+ w.winnerIt=CONFIG.BIOMI[w.atkIdx].it.N;
+ w.winnerEn=CONFIG.BIOMI[w.atkIdx].en.N;
+ attackerWinsThisTick.push(w);
+ this.addLog(st,CONFIG.BIOMI[w.atkIdx].it.N+" sconfigge "+CONFIG.BIOMI[w.defIdx].it.N+" (0 Cenere).",CONFIG.BIOMI[w.atkIdx].en.N+" defeats "+CONFIG.BIOMI[w.defIdx].en.N+" (0 Ash).",true);
+ }
+ continue;
+ }
+
+ w.ticksElapsed++;
+ var chance=this.getWarHitChance(st,w.atkIdx,w.defIdx);
+ if(this.nextRnd(st)<chance){
+ var killedFase=this.pickAndKillTargetInBiome(st,w.defIdx,true);
+ if(killedFase)w.enemyKills++;
+ }
+
+ /* Contrattacco del difensore per rendere gli scontri equilibrati */
+ var counterChance=this.getDefenderCounterChance(st);
+ if(this.nextRnd(st)<counterChance){
+ if(this.removeOneByPhase(st,w.atkIdx,"adulto"))w.ownAdultLosses++;
+ }
+
+ var postA=this.getBiomeLivingStats(st,w.atkIdx);
+ var postD=this.getBiomeLivingStats(st,w.defIdx);
+ if(postA.adults<=0 || postD.adults<=0){
+ w.active=false;
+ anyConcluded=true;
+ w.endAtkAdults=postA.adults;
+ w.endDefAdults=postD.adults;
+ if(postA.adults<=0 && postD.adults>0){
+ var ashPrize2=35+w.enemyKills*6;
+ st.cenere=(st.cenere||0)+ashPrize2;
+ st.cenereTotale=(st.cenereTotale||0)+ashPrize2;
+ st.stats.guerreVinteDif=(st.stats.guerreVinteDif||0)+1;
+ w.cenereGained=ashPrize2;
+ w.winnerIt=CONFIG.BIOMI[w.defIdx].it.N;
+ w.winnerEn=CONFIG.BIOMI[w.defIdx].en.N;
+ w.furiaIt="Nessuna punizione (attaccante respinto).";
+ w.furiaEn="No punishment (attacker repelled).";
+ defWinTriggered=true;
+ this.addLog(st,CONFIG.BIOMI[w.defIdx].it.N+" respinge "+CONFIG.BIOMI[w.atkIdx].it.N+" (+"+ashPrize2+" Cenere).",CONFIG.BIOMI[w.defIdx].en.N+" repels "+CONFIG.BIOMI[w.atkIdx].en.N+" (+"+ashPrize2+" Ash).",true);
+ }else{
+ st.stats.guerreVinteAtk=(st.stats.guerreVinteAtk||0)+1;
+ w.cenereGained=0;
+ w.winnerIt=CONFIG.BIOMI[w.atkIdx].it.N;
+ w.winnerEn=CONFIG.BIOMI[w.atkIdx].en.N;
+ attackerWinsThisTick.push(w);
+ this.addLog(st,CONFIG.BIOMI[w.atkIdx].it.N+" sconfigge "+CONFIG.BIOMI[w.defIdx].it.N+" (0 Cenere).",CONFIG.BIOMI[w.atkIdx].en.N+" defeats "+CONFIG.BIOMI[w.defIdx].en.N+" (0 Ash).",true);
+ }
+ }
+ }
+
+ if(attackerWinsThisTick.length>0){
+ var byAtk={};
+ for(var k=0;k<attackerWinsThisTick.length;k++){
+ var idxA=attackerWinsThisTick[k].atkIdx;
+ if(!byAtk[idxA])byAtk[idxA]=[];
+ byAtk[idxA].push(attackerWinsThisTick[k]);
+ }
+ var keys=Object.keys(byAtk);
+ for(var m=0;m<keys.length;m++){
+ var atkId=Number(keys[m]);
+ var listW=byAtk[atkId];
+ this.applyFuriaWarWheel(st,atkId,listW.length>=2?2:1,listW);
+ }
+ }
+
+ if(anyConcluded)this.trimConcludedWars(st);
+ if(defWinTriggered && !isOffline)AUDIO.play("war_def");
+ },
+
+ valutaCombinazioneDadi:function(tiri){
+ var count=tiri.length;
+ if(count===0){
+ return {key:"nessuna",it:"Nessuna combinazione",en:"No combination",baseScore:CONFIG.BASE_SCORES.nessuna,w:[],isColorCombo:false};
+ }
+ var isFiveDice=(count===CONFIG.REGOLE.dadiTot);
+
+ var byVal={};
+ for(var i=0;i<tiri.length;i++){
+ var d=tiri[i];
+ if(!byVal[d.value])byVal[d.value]=[];
+ byVal[d.value].push(i);
+ }
+ var groups=Object.keys(byVal).map(function(v){
+ return {value:Number(v),indices:byVal[v]};
+ }).sort(function(g1,g2){
+ if(g2.indices.length!==g1.indices.length)return g2.indices.length-g1.indices.length;
+ return g2.value-g1.value;
+ });
+
+ function winningGroupHasSameColor(idxs){
+ if(!isFiveDice || !idxs || idxs.length===0)return false;
+ var c0=tiri[idxs[0]].color;
+ for(var j=1;j<idxs.length;j++){
+ if(tiri[idxs[j]].color!==c0)return false;
+ }
+ return true;
+ }
+
+ var g0=groups[0],g1=groups[1];
+
+ if(isFiveDice && g0 && g0.indices.length===5){
+ var col5=winningGroupHasSameColor(g0.indices);
+ return {
+ key:col5?"pokerissimo_colore":"pokerissimo",
+ it:col5?"Pokerissimo + Colore":"Pokerissimo",
+ en:col5?"Five of a kind + Color":"Five of a kind",
+ baseScore:col5?CONFIG.BASE_SCORES.pokerissimo_colore:CONFIG.BASE_SCORES.pokerissimo,
+ w:g0.indices,
+ isColorCombo:col5
+ };
+ }
+ if(g0 && g0.indices.length===4){
+ var col4=winningGroupHasSameColor(g0.indices);
+ return {
+ key:col4?"poker_colore":"poker",
+ it:col4?"Poker + Colore":"Poker",
+ en:col4?"Four of a kind + Color":"Four of a kind",
+ baseScore:col4?CONFIG.BASE_SCORES.poker_colore:CONFIG.BASE_SCORES.poker,
+ w:g0.indices,
+ isColorCombo:col4
+ };
+ }
+ if(g0 && g0.indices.length===3 && g1 && g1.indices.length===2){
+ var fullIdxs=g0.indices.concat(g1.indices);
+ var colFull=winningGroupHasSameColor(fullIdxs);
+ return {
+ key:colFull?"full_colore":"full",
+ it:colFull?"Full + Colore":"Full",
+ en:colFull?"Full house + Color":"Full house",
+ baseScore:colFull?CONFIG.BASE_SCORES.full_colore:CONFIG.BASE_SCORES.full,
+ w:fullIdxs,
+ isColorCombo:colFull
+ };
+ }
+ if(g0 && g0.indices.length===3){
+ var col3=winningGroupHasSameColor(g0.indices);
+ return {
+ key:col3?"tris_colore":"tris",
+ it:col3?"Tris + Colore":"Tris",
+ en:col3?"Three of a kind + Color":"Three of a kind",
+ baseScore:col3?CONFIG.BASE_SCORES.tris_colore:CONFIG.BASE_SCORES.tris,
+ w:g0.indices,
+ isColorCombo:col3
+ };
+ }
+ if(g0 && g0.indices.length===2 && g1 && g1.indices.length===2){
+ var dpIdxs=g0.indices.concat(g1.indices);
+ var col2p=winningGroupHasSameColor(dpIdxs);
+ return {
+ key:col2p?"doppia_coppia_colore":"doppia_coppia",
+ it:col2p?"Doppia coppia + Colore":"Doppia coppia",
+ en:col2p?"Two pair + Color":"Two pair",
+ baseScore:col2p?CONFIG.BASE_SCORES.doppia_coppia_colore:CONFIG.BASE_SCORES.doppia_coppia,
+ w:dpIdxs,
+ isColorCombo:col2p
+ };
+ }
+ if(g0 && g0.indices.length===2){
+ var col1p=winningGroupHasSameColor(g0.indices);
+ return {
+ key:col1p?"coppia_colore":"coppia",
+ it:col1p?"Coppia + Colore":"Coppia",
+ en:col1p?"Pair + Color":"Pair",
+ baseScore:col1p?CONFIG.BASE_SCORES.coppia_colore:CONFIG.BASE_SCORES.coppia,
+ w:g0.indices,
+ isColorCombo:col1p
+ };
+ }
+ if(isFiveDice && winningGroupHasSameColor([0,1,2,3,4])){
+ return {
+ key:"colore",
+ it:"Colore",
+ en:"Flush",
+ baseScore:CONFIG.BASE_SCORES.colore,
+ w:[0,1,2,3,4],
+ isColorCombo:true
+ };
+ }
+ return {key:"nessuna",it:"Nessuna combinazione",en:"No combination",baseScore:CONFIG.BASE_SCORES.nessuna,w:[],isColorCombo:false};
+ },
+
+ applyWheelPrize:function(st,prize){
+ if(!prize)return;
+ if(prize.id==="pioggia_linfa"){
+ st.linfa+=450;st.linfaTotale+=450;
+ }else if(prize.id==="semi_eco"){
+ st.semi=(st.semi||0)+3;st.semiTotali=(st.semiTotali||0)+3;
+ }else if(prize.id==="benedizione_nascite"){
+ st.linfa+=600;st.linfaTotale+=600;
+ this.processAutonomousBirths(st);
+ }else if(prize.id==="furia_contenta"){
+ st.temperamentoIdx=3;
+ }else if(prize.id==="soffio_giovinezza"){
+ for(var b=0;b<st.biomi.length;b++){
+ for(var k=0;k<5;k++){
+ var inds=st.biomi[b].specie[k].individui||[];
+ for(var i=0;i<inds.length;i++){
+ inds[i].eta=Math.max(0,inds[i].eta-5);
+ inds[i].fase=this.getFaseFromEta(inds[i].eta);
+ }
+ }
+ }
+ }else if(prize.id==="tesoro_antico"){
+ st.linfa+=900;st.linfaTotale+=900;
+ }
+ this.addLog(st,"Ruota di Furia: "+prize.itEvent,"Furia's Wheel: "+prize.enEvent,true);
+ },
+
+ finishWheelNow:function(st){
+  if(!st||!st.specialWheel)return;
+  if(!st.specialWheel.resolved){
+   var pObj=CONFIG.WHEEL_PRIZES[st.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+   this.applyWheelPrize(st,pObj);
+   st.specialWheel.resolved=true;
+  }
+  st.specialWheel.expiresAt=0;
+  st.specialWheel=null;
+  st.prossimoLancio=st.t+this.getLancioIntervalSec(st);
+  U.wheelSpinning=false;
+ },
+
+ triggerSpecialWheel:function(st,instantResolve){
+  var idx=Math.floor(this.nextRnd(st)*CONFIG.WHEEL_PRIZES.length);
+  var prize=CONFIG.WHEEL_PRIZES[idx];
+  if(instantResolve){
+   this.applyWheelPrize(st,prize);
+   st.specialWheel=null;
+   return;
+  }
+  var targetRot=1080+(360-prize.angle);
+  var nowMs=Date.now();
+  st.specialWheel={prizeIdx:idx,spun:false,resolved:false,targetRot:targetRot,startedAt:nowMs,expiresAt:nowMs+5200};
+  U.wheelRot=0;
+  U.wheelSpinning=false;
+  clearTimeout(U.wheelTimer);
+  clearTimeout(U.wheelEndTimer);
+  clearTimeout(U.wheelClearTimer);
+  AUDIO.play("wheel");
+
+  U.wheelTimer=setTimeout(function(){
+   if(!S||!S.specialWheel)return;
+   S.specialWheel.spun=true;
+   U.wheelSpinning=true;
+   U.wheelRot=targetRot;
+   UI.renderFull();
+
+   var dur=UI.motoRidotto()?150:2200;
+   U.wheelEndTimer=setTimeout(function(){
+    if(!S||!S.specialWheel)return;
+    var pObj=CONFIG.WHEEL_PRIZES[S.specialWheel.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+    if(!S.specialWheel.resolved){
+     SIM.applyWheelPrize(S,pObj);
+     S.specialWheel.resolved=true;
+    }
+    U.wheelSpinning=false;
+    SAVE.saveLocal();
+    UI.renderFull();
+
+    U.wheelClearTimer=setTimeout(function(){
+     if(!S||!S.specialWheel)return;
+     SIM.finishWheelNow(S);
+     SAVE.saveLocal();
+     UI.renderFull();
+    },1800);
+   },dur);
+  },100);
+ },
+
+ lanciaDadiD20:function(st,isManual,isOffline){
+ var nDadi=isManual?CONFIG.REGOLE.dadiTot:this.scegliNumeroDadiFuria(st);
+ st.lanci++;
+ st.lastDiceCount=nDadi;
+ if(isManual)st.lanciManuali=(st.lanciManuali||0)+1;
+
+ var tiri=[];
+ var sumValues=0;
+ for(var i=0;i<nDadi;i++){
+ var bIdx=Math.floor(this.nextRnd(st)*CONFIG.BIOMI.length);
+ var aIdx=Math.floor(this.nextRnd(st)*5);
+ var val=(aIdx+1);
+ var color=CONFIG.CCOL[bIdx];
+ sumValues+=val;
+ tiri.push({b:bIdx,a:aIdx,value:val,color:color});
+ }
+
+ var missingDice=Math.max(0,CONFIG.REGOLE.dadiTot-nDadi);
+ var multiplierSum=sumValues+missingDice;
+
+ var combo=this.valutaCombinazioneDadi(tiri);
+ var colorBonus=combo.isColorCombo?(1+0.15*this.getUpgLvl(st,"risonanza_bioma")):1;
+ var linfaProduced=Math.round(combo.baseScore*multiplierSum*colorBonus);
+
+ st.linfa+=linfaProduced;
+ st.linfaTotale+=linfaProduced;
+ st.ultimoLancio=tiri;
+ st.ultimaComb={
+ key:combo.key,
+ it:combo.it,
+ en:combo.en,
+ linfaProduced:linfaProduced,
+ w:combo.w
+ };
+
+ for(var m=0;m<tiri.length;m++){
+ var bi=tiri[m].b;
+ st.biomi[bi].linfaProdotta+=Math.max(1,Math.round(linfaProduced/tiri.length));
+ if(!isManual||m<3)UI.MAP_FX.push({x:UI.MAP_CENTERS[bi].x,y:UI.MAP_CENTERS[bi].y,txt:"+"+UI.fmtNum(linfaProduced),life:1.0});
+ }
+
+ if(combo.key!=="nessuna"){
+ st.stats.combinazioni=(st.stats.combinazioni||0)+1;
+ if(!isOffline)AUDIO.play("combo");
+ }else if(!isOffline){
+ AUDIO.play("roll");
+ }
+
+ if(linfaProduced>(st.stats.migliorLancio||0)){
+ st.stats.migliorLancio=linfaProduced;
+ st.stats.migliorCombIt=combo.it;
+ st.stats.migliorCombEn=combo.en;
+ }
+
+ this.processAutonomousBirths(st);
+ if(!UI.motoRidotto())U.diceAnim=0.45;
+
+ if(!isManual && (st.lanci%CONFIG.REGOLE.wheelTriggerEveryRolls===0)){
+ this.triggerSpecialWheel(st,!!isOffline);
+ }
+ },
+
+ passoTempo:function(st,dtSec,isOffline){
+ if(st.specialWheel && !isOffline)return false;
+ var structuralChange=false;
+ st.t+=dtSec;
+ for(var b=0;b<st.biomi.length;b++){
+ if((st.biomi[b].fatigueRemaining||0)>0)st.biomi[b].fatigueRemaining=Math.max(0,st.biomi[b].fatigueRemaining-dtSec);
+ if((st.biomi[b].forceDebuffTicks||0)>0)st.biomi[b].forceDebuffTicks=Math.max(0,st.biomi[b].forceDebuffTicks-dtSec);
+ }
+ this.avanzaCicloVita(st,dtSec);
+ this.initiateAutonomousWars(st);
+ this.stepWarsTick(st,!!isOffline);
+
+ while(st.t>=st.prossimoCambioTemp){
+ this.aggiornaTemperamentoFuria(st);
+ st.prossimoCambioTemp+=CONFIG.REGOLE.temperamentoTickSec;
+ structuralChange=true;
+ }
+ var stepSec=this.getLancioIntervalSec(st);
+ while(st.t>=st.prossimoLancio){
+ this.lanciaDadiD20(st,false,isOffline);
+ st.prossimoLancio+=stepSec;
+ structuralChange=true;
+ if(st.specialWheel && !isOffline)break;
+ }
+ if(st.t>=st.prossimoRespiro){
+ if(this.processAutonomousBirths(st)>0)structuralChange=true;
+ st.prossimoRespiro+=CONFIG.REGOLE.respiroSec;
+ }
+ return structuralChange;
+ },
+
+ nuovoStato:function(seed){
+ var s0=(seed||Math.floor(Math.random()*2147483646)+1)|0;
+ var st={
+ v:CONFIG.SCHEMA_VERSIONE,
+ seed:s0,
+ rng:s0,
+ t:0,
+ lastTs:Date.now(),
+ linfa:120,
+ linfaTotale:120,
+ semi:0,
+ semiTotali:0,
+ cenere:0,
+ cenereTotale:0,
+ lanci:0,
+ lanciManuali:0,
+ prossimoLancio:CONFIG.REGOLE.lancioSec,
+ prossimoRespiro:CONFIG.REGOLE.respiroSec,
+ prossimoCambioTemp:CONFIG.REGOLE.temperamentoTickSec,
+ temperamentoIdx:1,
+ ultimoLancio:[],
+ ultimaComb:null,
+ lastDiceCount:3,
+ specialWheel:null,
+ lastFuriaWarNote:null,
+ upgrades:{
+ stimolo_furia:0,richiamo_dadi:0,mano_lesta:0,risonanza_bioma:0,eco_ciclo:0,
+ scudo_bioma:0,tempra_guerriera:0,seme_ardente:0
+ },
+ biomi:[],
+ guerre:[],
+ stats:{nascite:0,evoluzioni:0,mortiCiclo:0,combinazioni:0,migliorLancio:0,migliorCombIt:"",migliorCombEn:"",guerreVinteDif:0,guerreVinteAtk:0},
+ diario:[],
+ logCounter:0
+ };
+
+ for(var b=0;b<CONFIG.BIOMI.length;b++){
+ var specie=[];
+ for(var k=0;k<5;k++){
+ specie.push({valore:(k+1),individui:[],cicliCompiuti:0});
+ }
+ st.biomi.push({
+ id:CONFIG.BIOMI[b].id,
+ sbloccato:false,
+ linfaProdotta:0,
+ fatigueRemaining:0,
+ forceDebuffTicks:0,
+ specie:specie
+ });
+ }
+ this.processAutonomousBirths(st);
+ return st;
+ }
+};
+
+/* ============================================================================
+ * 4. PERSISTENCE & EXPORT/IMPORT (localStorage + JSON)
+ * ============================================================================ */
+var SAVE={
+ saveLocal:function(){
+ try{
+ S.lastTs=Date.now();
+ localStorage.setItem(CONFIG.SAVE_KEY,JSON.stringify({
+ v:CONFIG.SCHEMA_VERSIONE,
+ S:S,
+ lang:U.lang,
+ diceTheme:U.diceTheme,
+ noMotion:U.noMotion,
+ audioOn:AUDIO.enabled
+ }));
+ }catch(e){}
+ },
+ loadLocal:function(){
+ try{
+ var raw=localStorage.getItem(CONFIG.SAVE_KEY);
+ if(!raw)return null;
+ var obj=JSON.parse(raw);
+ if(obj&&obj.v===CONFIG.SCHEMA_VERSIONE&&obj.S&&Array.isArray(obj.S.biomi)&&obj.S.biomi.length===5){
+ if(obj.lang==="en"||obj.lang==="it")U.lang=obj.lang;
+ if(obj.diceTheme==="emoji"||obj.diceTheme==="minimal")U.diceTheme=obj.diceTheme;
+ U.noMotion=!!obj.noMotion;
+ if(typeof obj.audioOn==="boolean")AUDIO.enabled=obj.audioOn;
+ obj.S.specialWheel=null;
+ SIM.trimConcludedWars(obj.S);
+ return obj.S;
+ }
+ }catch(e){}
+ return null;
+ }
+};
+
+/* ============================================================================
+ * 5. UI, CANVAS & LIGHT-TICK RENDERER
+ * ============================================================================ */
+var S=null;
+var U={
+ view:"home",
+ warSubTab:"active",
+ focB:0,
+ lang:"it",
+ diceTheme:"minimal",
+ noMotion:false,
+ vel:1,
+ diceAnim:0,
+ coolUntil:0,
+ wheelRot:0,
+ wheelSpinning:false,
+ wheelTimer:null,
+ wheelEndTimer:null,
+ wheelClearTimer:null
+};
+
+var UI={
+ MW:256,MH:160,
+ MAP_GRID:new Uint8Array(256*160),
+ MAP_OWNER:new Int8Array(256*160),
+ MAP_FX:[],
+ MAP_CENTERS:[{x:56,y:54},{x:128,y:44},{x:196,y:58},{x:84,y:112},{x:176,y:112}],
+ MAP_LABELS:[{x:44,y:34},{x:128,y:34},{x:208,y:46},{x:64,y:126},{x:192,y:126}],
+
+ NHW_EMOJI:{
+ "0_0":"\uD83D\uDC3F\uFE0F","0_1":"\uD83D\uDC07","0_2":"\uD83E\uDD8C","0_3":"\uD83D\uDC3A","0_4":"\uD83E\uDD89",
+ "1_0":"\uD83E\uDD93","1_1":"\uD83E\uDD92","1_2":"\uD83D\uDC18","1_3":"\uD83E\uDD81","1_4":"\uD83D\uDC17",
+ "2_0":"\uD83D\uDC2C","2_1":"\uD83D\uDC22","2_2":"\uD83D\uDC19","2_3":"\uD83E\uDD88","2_4":"\uD83D\uDC0B",
+ "3_0":"\uD83E\uDDA6","3_1":"\uD83D\uDC1F","3_2":"\uD83E\uDD8C","3_3":"\uD83D\uDC3B","3_4":"\uD83E\uDD85",
+ "4_0":"\uD83E\uDDA4","4_1":"\uD83E\uDD8A","4_2":"\uD83D\uDC34","4_3":"\uD83E\uDDAC","4_4":"\uD83E\uDD85"
+ },
+
+ NHW_LINE_ART:{
+ "0_0":'<path d="M38 46 C54 44 54 16 40 16 C32 16 34 26 40 28" fill="#ffedd5"/><ellipse cx="26" cy="33" rx="11" ry="13" fill="#ffedd5"/><path d="M20 21 L19 15 L24 20 M31 21 L33 15 L28 20"/><circle cx="23" cy="30" r="2" fill="#1e293b"/><circle cx="30" cy="30" r="2" fill="#1e293b"/>',
+ "0_1":'<path d="M25 22 L22 8 Q26 6 28 20"/><path d="M39 22 L42 8 Q38 6 36 20"/><ellipse cx="32" cy="36" rx="13" ry="15" fill="#f3f4f6"/><circle cx="27" cy="33" r="2" fill="#1e293b"/><circle cx="37" cy="33" r="2" fill="#1e293b"/><polygon points="30,39 34,39 32,42" fill="#f472b6"/><path d="M32 42 L32 45 M28 45 Q32 48 36 45"/>',
+ "0_2":'<path d="M26 22 L22 10 M24 15 L18 13 M23 12 L27 9 M38 22 L42 10 M40 15 L46 13 M41 12 L37 9"/><path d="M22 22 L42 22 L38 44 Q32 50 26 44 Z" fill="#ffedd5"/><circle cx="27" cy="30" r="2" fill="#1e293b"/><circle cx="37" cy="30" r="2" fill="#1e293b"/><polygon points="30,40 34,40 32,43" fill="#1e293b"/>',
+ "0_3":'<path d="M20 24 L17 11 L28 19 M44 24 L47 11 L36 19" fill="#e2e8f0"/><path d="M18 22 Q32 14 46 22 L43 42 Q32 52 21 42 Z" fill="#e2e8f0"/><circle cx="26" cy="28" r="2.1" fill="#1e293b"/><circle cx="38" cy="28" r="2.1" fill="#1e293b"/><polygon points="29,36 35,36 32,40" fill="#1e293b"/><path d="M32 40 L32 44 M27 44 Q32 47 37 44"/>',
+ "0_4":'<path d="M21 18 L18 12 L26 16 M43 18 L46 12 L38 16"/><ellipse cx="32" cy="33" rx="14" ry="16" fill="#fef3c7"/><circle cx="26" cy="29" r="5" fill="#fff"/><circle cx="38" cy="29" r="5" fill="#fff"/><circle cx="26" cy="29" r="2" fill="#1e293b"/><circle cx="38" cy="29" r="2" fill="#1e293b"/><polygon points="30,34 34,34 32,39" fill="#fb923c"/>',
+ "1_0":'<path d="M21 20 L19 10 L25 18 M43 20 L45 10 L39 18"/><rect x="20" y="18" width="24" height="32" rx="11" fill="#ffffff"/><path d="M21 24 L27 26 M43 24 L37 26 M20 31 L26 32 M44 31 L38 32"/><circle cx="27" cy="28" r="2" fill="#1e293b"/><circle cx="37" cy="28" r="2" fill="#1e293b"/><ellipse cx="32" cy="42" rx="8" ry="5" fill="#e2e8f0"/>',
+ "1_1":'<path d="M26 52 L28 24 L36 24 L38 52" fill="#fef3c7"/><path d="M27 14 L26 8 M37 14 L38 8"/><circle cx="26" cy="8" r="1.5" fill="#1e293b"/><circle cx="38" cy="8" r="1.5" fill="#1e293b"/><rect x="23" y="13" width="18" height="14" rx="7" fill="#fef3c7"/><circle cx="28" cy="19" r="1.8" fill="#1e293b"/><circle cx="36" cy="19" r="1.8" fill="#1e293b"/><rect x="30" y="32" width="4" height="4" rx="1"/><rect x="29" y="41" width="5" height="4" rx="1"/>',
+ "1_2":'<path d="M21 20 Q10 18 11 32 Q12 42 21 38 M43 20 Q54 18 53 32 Q52 42 43 38" fill="#e2e8f0"/><rect x="21" y="16" width="22" height="28" rx="10" fill="#f1f5f9"/><path d="M29 34 L29 48 Q29 52 33 52 Q36 52 36 48 L35 34" fill="#f1f5f9"/><circle cx="27" cy="27" r="2" fill="#1e293b"/><circle cx="37" cy="27" r="2" fill="#1e293b"/>',
+ "1_3":'<circle cx="32" cy="32" r="19" fill="#fed7aa"/><circle cx="32" cy="33" r="12" fill="#fef3c7"/><circle cx="27" cy="30" r="2" fill="#1e293b"/><circle cx="37" cy="30" r="2" fill="#1e293b"/><polygon points="30,35 34,35 32,38" fill="#1e293b"/><path d="M32 38 L32 41 M29 41 Q32 43 35 41"/>',
+ "1_4":'<ellipse cx="30" cy="34" rx="16" ry="13" fill="#e2e8f0"/><path d="M44 30 L53 22 L49 34 Z" fill="#f8fafc"/><path d="M40 28 L44 23 L44 30"/><circle cx="37" cy="29" r="2" fill="#1e293b"/><path d="M20 44 L20 49 M38 44 L38 49"/>',
+ "2_0":'<path d="M14 38 Q22 16 44 24 L52 26 L45 30 Q36 42 18 42 L11 47 L14 38 Z" fill="#e0f2fe"/><path d="M29 21 L32 14 L36 22"/><circle cx="41" cy="25" r="1.8" fill="#1e293b"/>',
+ "2_1":'<path d="M16 36 A16 14 0 0 1 48 36 Z" fill="#dcfce7"/><path d="M12 36 L52 36"/><path d="M48 34 Q55 31 54 36 Q53 39 47 38"/><path d="M22 36 L20 44 M42 36 L44 44"/><path d="M25 25 L32 22 L39 25 L36 33 L28 33 Z"/>',
+ "2_2":'<circle cx="32" cy="24" r="12" fill="#fce7f3"/><circle cx="28" cy="24" r="2" fill="#1e293b"/><circle cx="36" cy="24" r="2" fill="#1e293b"/><path d="M22 34 Q16 44 20 48 M28 36 Q26 46 28 50 M36 36 Q38 46 36 50 M42 34 Q48 44 44 48" fill="none"/>',
+ "2_3":'<path d="M12 35 Q28 18 48 30 L54 22 L50 33 L54 44 L47 36 Q28 44 12 35 Z" fill="#e2e8f0"/><path d="M28 24 L31 13 L36 24"/><path d="M22 33 L22 38 M25 33 L25 38 M28 33 L28 38"/><circle cx="19" cy="30" r="1.8" fill="#1e293b"/>',
+ "2_4":'<path d="M12 34 Q12 18 34 18 Q48 18 48 32 L54 26 L52 34 L55 40 L47 36 Q38 44 18 42 Q12 40 12 34 Z" fill="#dbeafe"/><path d="M32 18 L32 11 M29 12 Q32 9 35 12"/><circle cx="21" cy="31" r="2" fill="#1e293b"/><path d="M15 37 Q26 39 38 36"/>',
+ "3_0":'<ellipse cx="32" cy="35" rx="13" ry="14" fill="#fef3c7"/><circle cx="23" cy="23" r="3.5" fill="#fde68a"/><circle cx="41" cy="23" r="3.5" fill="#fde68a"/><circle cx="27" cy="31" r="2" fill="#1e293b"/><circle cx="37" cy="31" r="2" fill="#1e293b"/><rect x="29" y="38" width="6" height="4" rx="1" fill="#fff"/>',
+ "3_1":'<path d="M14 32 Q28 16 46 28 L54 20 L51 32 L54 44 L46 36 Q28 48 14 32 Z" fill="#e0f2fe"/><circle cx="22" cy="30" r="2" fill="#1e293b"/><path d="M30 25 Q33 32 30 39"/>',
+ "3_2":'<path d="M26 22 Q18 10 14 18 M38 22 Q46 10 50 18"/><path d="M22 22 L42 22 L38 44 Q32 50 26 44 Z" fill="#f3f4f6"/><circle cx="27" cy="30" r="2" fill="#1e293b"/><circle cx="37" cy="30" r="2" fill="#1e293b"/><path d="M30 45 L32 50 L34 45"/>',
+ "3_3":'<circle cx="20" cy="20" r="5" fill="#fed7aa"/><circle cx="44" cy="20" r="5" fill="#fed7aa"/><circle cx="32" cy="34" r="16" fill="#ffedd5"/><ellipse cx="32" cy="38" rx="7" ry="5" fill="#fef3c7"/><circle cx="26" cy="29" r="2" fill="#1e293b"/><circle cx="38" cy="29" r="2" fill="#1e293b"/><polygon points="30,35 34,35 32,38" fill="#1e293b"/>',
+ "3_4":'<path d="M12 28 Q22 18 32 24 Q42 18 52 28 L44 34 L32 30 L20 34 Z" fill="#fef3c7"/><circle cx="32" cy="34" r="9" fill="#fff"/><polygon points="30,36 34,36 32,42" fill="#fb923c"/><circle cx="29" cy="33" r="1.6" fill="#1e293b"/><circle cx="35" cy="33" r="1.6" fill="#1e293b"/>',
+ "4_0":'<path d="M30 46 L30 22 Q30 14 36 16" fill="none"/><circle cx="36" cy="16" r="5" fill="#fef9c3"/><polygon points="41,15 48,17 41,19" fill="#fb923c"/><ellipse cx="26" cy="40" rx="10" ry="7" fill="#e2e8f0"/><path d="M23 47 L23 53 M29 47 L29 53"/>',
+ "4_1":'<path d="M18 22 L17 11 L27 19 M46 22 L47 11 L37 19" fill="#fed7aa"/><path d="M17 22 L47 22 L32 46 Z" fill="#fdba74"/><path d="M23 33 L32 46 L41 33 Q32 37 23 33 Z" fill="#fff"/><circle cx="26" cy="27" r="2" fill="#1e293b"/><circle cx="38" cy="27" r="2" fill="#1e293b"/><circle cx="32" cy="45" r="2.2" fill="#1e293b"/>',
+ "4_2":'<path d="M23 20 L21 11 L27 18 M41 20 L43 11 L37 18"/><rect x="22" y="18" width="20" height="30" rx="9" fill="#fef3c7"/><ellipse cx="32" cy="41" rx="8" ry="5" fill="#fde68a"/><circle cx="27" cy="27" r="2" fill="#1e293b"/><circle cx="37" cy="27" r="2" fill="#1e293b"/>',
+ "4_3":'<path d="M18 20 Q12 14 17 11 M46 20 Q52 14 47 11"/><rect x="18" y="18" width="28" height="28" rx="11" fill="#e7e5e4"/><ellipse cx="32" cy="39" rx="10" ry="6" fill="#d6d3d1"/><circle cx="26" cy="27" r="2" fill="#1e293b"/><circle cx="38" cy="27" r="2" fill="#1e293b"/>',
+ "4_4":'<path d="M20 22 Q32 12 44 22 L42 44 Q32 50 22 44 Z" fill="#fef3c7"/><path d="M22 27 L28 29 M42 27 L36 29"/><circle cx="27" cy="30" r="2" fill="#1e293b"/><circle cx="37" cy="30" r="2" fill="#1e293b"/><path d="M28 35 Q32 33 36 35 L32 44 Z" fill="#fb923c"/>'
+ },
+
+ tr:function(it,en){return U.lang==="en"?en:it;},
+ esc:function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});},
+ fmtNum:function(n){
+ var v=Math.floor(Math.max(0,n||0));
+ if(v>=1e9)return (v/1e9).toFixed(2).replace(/\.00$/,"")+"B";
+ if(v>=1e6)return (v/1e6).toFixed(2).replace(/\.00$/,"")+"M";
+ if(v>=1e4)return (v/1e3).toFixed(1).replace(/\.0$/,"")+"K";
+ return String(v);
+ },
+ motoRidotto:function(){
+ var sys=false;
+ try{sys=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){}
+ return !!(U.noMotion||sys);
+ },
+ toast:function(msg){
+ var el=document.getElementById("toast");if(!el)return;
+ el.textContent=msg;el.className="on";
+ clearTimeout(U._tTimer);U._tTimer=setTimeout(function(){el.className="";},2000);
+ },
+
+ getAnimalIcon:function(bIdx,aIdx,pxSize){
+ var sz=pxSize||42,key=bIdx+"_"+aIdx;
+ if(U.diceTheme==="emoji"){
+ return '<span style="font-size:'+Math.round(sz*0.92)+'px;line-height:1">'+(this.NHW_EMOJI[key]||"\uD83D\uDC3E")+'</span>';
+ }
+ var paths=this.NHW_LINE_ART[key]||this.NHW_LINE_ART["0_0"];
+ return '<svg viewBox="0 0 64 64" width="'+sz+'" height="'+sz+'" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle">'+paths+'</svg>';
+ },
+
+ initWorldMap:function(){
+ for(var y=0;y<this.MH;y++)for(var x=0;x<this.MW;x++){
+ var idx=y*this.MW+x;
+ var nx=(x-127.5)/114,ny=(y-79.5)/66,r2=nx*nx+ny*ny;
+ var detail=Math.sin(x*0.105)*0.11+Math.cos(y*0.125)*0.11+Math.sin((x+y)*0.07)*0.07;
+ var h=1.06-r2+detail;
+ if(h<0.08){this.MAP_GRID[idx]=0;this.MAP_OWNER[idx]=-1;}
+ else if(h<0.18){this.MAP_GRID[idx]=1;this.MAP_OWNER[idx]=-1;}
+ else if(h<0.25){this.MAP_GRID[idx]=2;this.MAP_OWNER[idx]=-1;}
+ else{
+ this.MAP_GRID[idx]=h<0.31?3:(h>0.74?6:(h>0.56?5:4));
+ var best=0,bd=1e9;
+ for(var c=0;c<5;c++){
+ var dx=(x-this.MAP_CENTERS[c].x)*0.95,dy=(y-this.MAP_CENTERS[c].y)*1.05;
+ var d=Math.hypot(dx,dy)+Math.sin(x*0.09+c)*4.2;
+ if(d<bd){bd=d;best=c;}
+ }
+ this.MAP_OWNER[idx]=best;
+ }
+ }
+ },
+
+ drawWorldMap:function(){
+ var cv=document.getElementById("wb-map");if(!cv||!S)return;
+ var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,cw=W/this.MW,ch=H/this.MH;
+ ctx.imageSmoothingEnabled=false;
+
+ for(var y=0;y<this.MH;y++)for(var x=0;x<this.MW;x++){
+ var idx=y*this.MW+x,t=this.MAP_GRID[idx],ow=this.MAP_OWNER[idx];
+ if(t===0)ctx.fillStyle="#0b2242";
+ else if(t===1)ctx.fillStyle="#14396b";
+ else if(t===2)ctx.fillStyle="#1d548f";
+ else{
+ var tm=CONFIG.CTEMA[ow>=0?ow:0];
+ ctx.fillStyle=t===3?tm.sand:(t===6?tm.rock:(t===5?tm.alt:tm.land));
+ }
+ ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
+ }
+
+ ctx.fillStyle="#090d16";
+ for(var y2=0;y2<this.MH;y2++)for(var x2=0;x2<this.MW;x2++){
+ var idx2=y2*this.MW+x2,ow2=this.MAP_OWNER[idx2];
+ if(ow2<0)continue;
+ var leftOw=(x2>0)?this.MAP_OWNER[idx2-1]:-1;
+ var topOw=(y2>0)?this.MAP_OWNER[idx2-this.MW]:-1;
+ if(ow2===2){
+ if(leftOw>=0&&leftOw!==2)ctx.fillRect(x2*cw,y2*ch,1.6,ch+0.6);
+ if(topOw>=0&&topOw!==2)ctx.fillRect(x2*cw,y2*ch,cw+0.6,1.6);
+ }else{
+ if(leftOw>=0&&leftOw!==ow2)ctx.fillRect(x2*cw,y2*ch,1.4,ch+0.6);
+ if(topOw>=0&&topOw!==ow2)ctx.fillRect(x2*cw,y2*ch,cw+0.6,1.4);
+ }
+ }
+
+ ctx.font="900 32px 'Plus Jakarta Sans', sans-serif";
+ ctx.textBaseline="middle";ctx.textAlign="center";
+ for(var c=0;c<5;c++){
+ var lp=this.MAP_LABELS[c];
+ var lx=lp.x*cw,ly=lp.y*ch;
+ var isSel=(c===U.focB);
+ var lbl=U.lang==="en"?CONFIG.BIOMI[c].en.N:CONFIG.BIOMI[c].it.N;
+ var tw=ctx.measureText(lbl).width;
+ var bw=tw+32,bh=44;
+ ctx.fillStyle=CONFIG.CCOL[c];
+ ctx.strokeStyle=isSel?"#ffffff":"#090d16";
+ ctx.lineWidth=isSel?4.2:2.6;
+ ctx.beginPath();ctx.roundRect(lx-bw*0.5,ly-bh*0.5,bw,bh,10);ctx.fill();ctx.stroke();
+ ctx.fillStyle=CONFIG.CLABEL_FG[c];
+ ctx.fillText(lbl,lx,ly+1);
+ }
+
+ ctx.font="bold 13px 'Plus Jakarta Sans', sans-serif";
+ for(var f=this.MAP_FX.length-1;f>=0;f--){
+ var fx=this.MAP_FX[f];
+ ctx.fillStyle="#34d399";
+ ctx.fillText(fx.txt,fx.x*cw,fx.y*ch);
+ this.MAP_FX.splice(f,1);
+ }
+ },
+
+ drawBiomeMiniMap:function(){
+ var cv=document.getElementById("bio-map");if(!cv||!S)return;
+ var ctx=cv.getContext("2d"),W=cv.width,H=cv.height,b=SIM.clamp(U.focB,0,4);
+ var tm=CONFIG.CTEMA[b]||CONFIG.CTEMA[0];
+ var subW=192,subH=108,cw=W/subW,ch=H/subH;
+ ctx.imageSmoothingEnabled=false;
+
+ for(var y=0;y<subH;y++)for(var x=0;x<subW;x++){
+ var nx=(x-subW*0.5)/(subW*0.47),ny=(y-subH*0.50)/(subH*0.44);
+ var r2=nx*nx+ny*ny;
+ var wave=Math.sin(x*0.09+b)*0.08+Math.cos(y*0.11-b)*0.08+Math.sin((x+y)*0.06)*0.05;
+ var h=1.14-r2+wave;
+ if(h<0.04)ctx.fillStyle="#0b2242";
+ else if(h<0.12)ctx.fillStyle="#14396b";
+ else if(h<0.19)ctx.fillStyle="#1d548f";
+ else if(h<0.26)ctx.fillStyle=tm.sand;
+ else if(h>0.82)ctx.fillStyle=tm.rock;
+ else if(h>0.60)ctx.fillStyle=tm.alt;
+ else ctx.fillStyle=tm.land;
+ ctx.fillRect(x*cw,y*ch,cw+0.6,ch+0.6);
+ }
+
+ var B=S.biomi[b],meta=CONFIG.BIOMI[b];
+ if(!B||!meta)return;
+ var stats=SIM.getBiomeLivingStats(S,b);
+ var force=SIM.getBiomeForce(S,b);
+ var bNome=U.lang==="en"?meta.en.N:meta.it.N;
+
+ ctx.imageSmoothingEnabled=true;
+
+ /* Capitale del bioma al centro-alto dell'habitat */
+ var capX=W*0.5,capY=H*0.33;
+ ctx.save();
+ ctx.fillStyle="rgba(9,13,22,0.84)";
+ ctx.strokeStyle="#fbbf24";
+ ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.arc(capX,capY,26,0,Math.PI*2);
+ ctx.fill();
+ ctx.stroke();
+
+ ctx.fillStyle="#fbbf24";
+ ctx.font="900 18px 'Plus Jakarta Sans', sans-serif";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText("🏛️",capX,capY+1);
+
+ var capTxt=meta.capitale.toUpperCase();
+ ctx.font="800 14px 'Cinzel', Georgia, serif";
+ var capW=ctx.measureText(capTxt).width+20;
+ ctx.fillStyle="rgba(9,13,22,0.88)";
+ ctx.strokeStyle=CONFIG.CCOL[b];
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ ctx.roundRect(capX-capW*0.5,capY+30,capW,24,8);
+ ctx.fill();
+ ctx.stroke();
+ ctx.fillStyle="#f8fafc";
+ ctx.fillText(capTxt,capX,capY+42);
+
+ /* Disposizione visiva degli individui vivi nell'habitat */
+ var phaseColors={cucciolo:"#22c55e",giovane:"#38bdf8",adulto:"#eab308",anziano:"#f97316",morente:"#ef4444"};
+ var speciesZones=[
+ {cx:0.22,cy:0.34},{cx:0.78,cy:0.34},{cx:0.20,cy:0.68},{cx:0.50,cy:0.72},{cx:0.80,cy:0.68}
+ ];
+ for(var k=0;k<5;k++){
+ var inds=B.specie[k].individui||[];
+ if(inds.length===0)continue;
+ var zone=speciesZones[k];
+ var zX=W*zone.cx,zY=H*zone.cy;
+ var aShort=(U.lang==="en"?meta.animaliEn[k]:meta.animali[k]);
+ var emojiChar=this.NHW_EMOJI[b+"_"+k]||"🐾";
+
+ for(var i=0;i<inds.length;i++){
+ var ang=(i/Math.max(1,inds.length))*Math.PI*2 - Math.PI*0.5;
+ var rad=inds.length===1?0:24;
+ var px=zX+Math.cos(ang)*rad;
+ var py=zY+Math.sin(ang)*rad*0.78;
+ var pCol=phaseColors[inds[i].fase]||"#eab308";
+
+ ctx.fillStyle="rgba(9,13,22,0.85)";
+ ctx.strokeStyle=pCol;
+ ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.arc(px,py,17,0,Math.PI*2);
+ ctx.fill();
+ ctx.stroke();
+
+ ctx.font="18px 'Plus Jakarta Sans', sans-serif";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText(emojiChar,px,py+1);
+ }
+
+ /* Etichetta specie compatta sotto il branco */
+ ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+ var tagTxt=aShort+" ("+inds.length+"/5)";
+ var tw=ctx.measureText(tagTxt).width+14;
+ ctx.fillStyle="rgba(9,13,22,0.82)";
+ ctx.beginPath();
+ ctx.roundRect(zX-tw*0.5,zY+34,tw,20,6);
+ ctx.fill();
+ ctx.fillStyle="#f1f5f9";
+ ctx.fillText(tagTxt,zX,zY+44);
+ }
+
+ /* Barra HUD compatta in alto */
+ var hudTxt=bNome.toUpperCase()+" · "+this.tr("Vivi: ","Alive: ")+stats.count+"/25 · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
+ ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
+ var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
+ ctx.fillStyle="rgba(9,13,22,0.88)";
+ ctx.strokeStyle=CONFIG.CCOL[b];
+ ctx.lineWidth=2.5;
+ ctx.beginPath();
+ ctx.roundRect((W-hudW)*0.5,12,hudW,32,10);
+ ctx.fill();
+ ctx.stroke();
+ ctx.fillStyle="#fbbf24";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText(hudTxt,W*0.5,28);
+
+ if((B.fatigueRemaining||0)>0 || (B.forceDebuffTicks||0)>0){
+ var warnTxt=this.tr("Stanchezza/Debuff guerra attivo","War fatigue/debuff active");
+ ctx.font="800 12px 'Plus Jakarta Sans', sans-serif";
+ var ww=ctx.measureText(warnTxt).width+20;
+ ctx.fillStyle="rgba(127,29,29,0.92)";
+ ctx.beginPath();
+ ctx.roundRect((W-ww)*0.5,H-32,ww,22,7);
+ ctx.fill();
+ ctx.fillStyle="#fecaca";
+ ctx.fillText(warnTxt,W*0.5,H-21);
+ }
+ ctx.restore();
+ },
+
+ handleMapTap:function(ev){
+ var cv=document.getElementById("wb-map");if(!cv)return;
+ var rect=cv.getBoundingClientRect();
+ var gx=((ev.clientX-rect.left)*(cv.width/rect.width))/(cv.width/UI.MW);
+ var gy=((ev.clientY-rect.top)*(cv.height/rect.height))/(cv.height/UI.MH);
+ var best=0,bd=1e9;
+ for(var c=0;c<5;c++){
+ var d=Math.hypot(gx-UI.MAP_CENTERS[c].x,gy-UI.MAP_CENTERS[c].y);
+ if(d<bd){bd=d;best=c;}
+ }
+ U.focB=best;
+ UI.renderFull();
+ },
+
+ renderD20Die:function(slotIdx){
+ var toss=(U.diceAnim>0&&!this.motoRidotto())?" rolling":"";
+ var tir=S.ultimoLancio&&S.ultimoLancio[slotIdx];
+ if(!tir){
+ return '<div class="die idle-slot"><small>'+this.tr("Fermo","Idle")+'</small></div>';
+ }
+ var meta=CONFIG.BIOMI[tir.b]||CONFIG.BIOMI[0];
+ var aNome=U.lang==="en"?meta.animaliEn[tir.a]:meta.animali[tir.a];
+ var biomeColor=CONFIG.CCOL[tir.b]||CONFIG.CCOL[0];
+ var isWin=(S.ultimaComb&&Array.isArray(S.ultimaComb.w)&&S.ultimaComb.w.indexOf(slotIdx)>=0);
+ var glow=isWin?("box-shadow:0 0 16px "+biomeColor+";"):"";
+ return '<div class="die'+(isWin?' w':'')+toss+'" style="border-color:'+biomeColor+';'+glow+'">'+
+ '<div class="die-ico">'+this.getAnimalIcon(tir.b,tir.a,40)+'</div>'+
+ '<small>'+this.esc(aNome)+'</small>'+
+ '</div>';
+ },
+
+ renderSpecialWheel:function(){
+  var sw=S.specialWheel;
+  var prize=CONFIG.WHEEL_PRIZES[sw.prizeIdx]||CONFIG.WHEEL_PRIZES[0];
+  var rot=sw.spun?(sw.targetRot||U.wheelRot||1080):0;
+  var segIcons=["💧","✨","🌿","😺","⏳","💎"];
+  var segsHtml="";
+  for(var i=0;i<6;i++){
+   var deg=i*60+30;
+   segsHtml+='<div class="wheel-seg-ico" style="transform:rotate('+deg+'deg) translateY(-48px) rotate(-'+deg+'deg)">'+segIcons[i]+'</div>';
+  }
+  var statusTxt=sw.resolved
+   ?this.esc(U.lang==="en"?prize.enLabel:prize.itLabel)
+   :this.tr("La ruota gira...","The wheel spins...");
+
+  return '<div class="wheel-stage">'+
+   '<div class="wheel-wrap">'+
+   '<div class="wheel-pointer"></div>'+
+   '<div class="wheel-disc" style="transform:rotate('+rot+'deg)">'+
+   '<div class="wheel-labels">'+segsHtml+'</div>'+
+   '</div>'+
+   '<div class="wheel-hub">🐾</div>'+
+   '</div>'+
+   '<div class="wheel-status">'+statusTxt+'</div>'+
+   '<button type="button" class="mini on" data-a="finishWheel">'+this.tr("Continua","Continue")+'</button>'+
+   '</div>';
+ },
+
+ renderMiniDiary3:function(){
+ var entries=(S.diario||[]).slice(0,3);
+ var listHtml=entries.length===0
+ ?('<li>'+this.tr("Nessun evento registrato.","No events recorded yet.")+'</li>')
+ :entries.map(function(e){
+ return '<li><b style="color:var(--amber2)">'+e.t+'s</b> · '+UI.esc(U.lang==="en"?e.en:e.it)+'</li>';
+ }).join("");
+ return '<div class="mini-diary-box"><ul>'+listHtml+'</ul></div>';
+ },
+
+ homeHtml:function(){
+ var mFoc=CONFIG.BIOMI[U.focB];
+ var bFocNome=U.lang==="en"?mFoc.en.N:mFoc.it.N;
+ var bioStats=SIM.getBiomeLivingStats(S,U.focB);
+ var tObj=CONFIG.FURIA_TEMPERAMENTS[S.temperamentoIdx||0]||CONFIG.FURIA_TEMPERAMENTS[1];
+ var tempLabel=U.lang==="en"?tObj.en:tObj.it;
+
+ var isWheelActive=!!S.specialWheel;
+ var h='<div class="qbox">'+
+ '<div class="qbox-hd"><span>'+this.tr("Casa · Mondi","Home · Worlds")+'</span><small>'+this.tr("Furia: ","Furia: ")+this.esc(tempLabel)+' · '+this.tr("Lanci: ","Rolls: ")+S.lanci+'</small></div>';
+
+ if(isWheelActive){
+ var wheelHead=this.tr("Furia fa uno scatto verso la ruota!","Furia dashes toward the wheel!");
+ h+='<div class="cat-voice">'+
+ '<div class="furia-head-line">'+this.esc(wheelHead)+'</div>'+
+ '</div>'+
+ this.renderSpecialWheel();
+ }else{
+ var nCount=(S.ultimoLancio&&S.ultimoLancio.length)?S.ultimoLancio.length:(S.lastDiceCount||3);
+ var diceWord=U.lang==="en"?(nCount===1?"die":"dice"):(nCount===1?"dado":"dadi");
+ var furiaHeadHtml=U.lang==="en"
+ ?('Furia knocks <span class="furia-dice-num">'+nCount+'</span> '+diceWord+' off the table.')
+ :('Furia giocando fa cadere dal tavolo <span class="furia-dice-num">'+nCount+'</span> '+diceWord+'.');
+
+ var row='<div class="dice-row">'+this.renderD20Die(0)+this.renderD20Die(1)+'</div>'+
+ '<div class="dice-row">'+this.renderD20Die(2)+this.renderD20Die(3)+this.renderD20Die(4)+'</div>';
+ var intervalSec=SIM.getLancioIntervalSec(S);
+ var rem=Math.max(0,S.prossimoLancio-S.t);
+ var pct=SIM.clamp(100*(1-rem/intervalSec),0,100);
+ var nowSec=Date.now()/1000;
+ var coolRem=Math.max(0,Math.ceil(U.coolUntil-nowSec));
+ var manCost=SIM.getManualRollCost(S);
+ var canForce=S.linfa>=manCost&&coolRem<=0;
+
+ var combKey=(S.ultimaComb&&S.ultimaComb.key)?S.ultimaComb.key:"nessuna";
+ var combBg=CONFIG.COMBO_BG_SCALE[combKey]||"#ffffff";
+ var combText=S.ultimaComb
+ ?(this.esc(U.lang==="en"?S.ultimaComb.en:S.ultimaComb.it)+" · +"+this.fmtNum(S.ultimaComb.linfaProduced)+" "+this.tr("Linfa","Sap"))
+ :this.tr("Nessuna combinazione · +0 Linfa","No combination · +0 Sap");
+
+ h+='<div class="cat-voice">'+
+ '<div class="furia-head-line">'+furiaHeadHtml+'</div>'+
+ '</div>'+
+ '<div class="dice-stage-row">'+
+ '<div class="dice">'+row+'</div>'+
+ '<div class="roll-col">'+
+ '<span class="take-dice-cue">'+this.tr("Togli i dadi a Furia e...","Take the dice from Furia and...")+'</span>'+
+ '<button id="btn-manual-roll" class="cta-lancia" data-a="lancia"'+(canForce?'':' disabled')+'>'+
+ (coolRem>0?('<span>'+this.tr("Attendi","Wait")+'</span><b>'+coolRem+'s</b>'):('<span>'+this.tr("...lanciali tutti tu!","...roll them all yourself!")+'</span><small style="font-weight:900">'+this.fmtNum(manCost)+' '+this.tr("Linfa","Sap")+'</small>'))+
+ '</button>'+
+ '<div class="roll-cd-box">'+
+ '<span class="roll-cd-sec" id="auto-roll-sec">'+Math.ceil(rem)+'s</span>'+
+ '<div class="pbar"><u id="auto-roll-bar" style="width:'+pct+'%"></u></div>'+
+ '</div>'+
+ '</div>'+
+ '</div>'+
+ '<div class="combo-banner" style="background:'+combBg+'">'+combText+'</div>';
+ }
+
+ h+='</div>';
+ h+=this.renderMiniDiary3();
+
+ var avgAgeStr=bioStats.count>0?(bioStats.avgAge+" "+this.tr("anni","yrs")):"—";
+ h+='<div class="map-box">'+
+ '<div class="map-wrap"><canvas id="wb-map" width="1024" height="640"></canvas></div>'+
+ '<div class="map-bar-bottom">'+
+ '<div class="map-sel-stacked">'+
+ '<span>'+this.tr("Animali vivi: ","Living animals: ")+'<b id="home-bio-alive">'+bioStats.count+'/25</b></span>'+
+ '<span>'+this.tr("Età media: ","Avg age: ")+'<b id="home-bio-age">'+avgAgeStr+'</b></span>'+
+ '</div>'+
+ '<button class="mini" data-a="go" data-v="bioma">'+this.tr("Esplora ","Explore ")+this.esc(bFocNome)+'</button>'+
+ '</div>'+
+ '</div>';
+ return h;
+ },
+
+ renderReturnHomeBar:function(){
+ return '<div class="row" style="justify-content:space-between;background:var(--card);border:1px solid var(--amber);border-radius:10px;padding:7px 10px;margin-bottom:9px">'+
+ '<span class="dim">'+this.tr("Vista secondaria","Secondary view")+'</span>'+
+ '<button class="mini on" data-a="go" data-v="home">🏠 '+this.tr("Torna a Casa","Back to Home")+'</button>'+
+ '</div>';
+ },
+
+ biomaHtml:function(){
+ var b=SIM.clamp(U.focB,0,4),B=S.biomi[b],meta=CONFIG.BIOMI[b];
+ var bNome=U.lang==="en"?meta.en.N:meta.it.N;
+ var bDesc=U.lang==="en"?meta.en.desc:meta.it.desc;
+
+ var swHtml='<div class="biome-switcher">';
+ for(var i=0;i<CONFIG.BIOMI.length;i++){
+ var bm=CONFIG.BIOMI[i];
+ var bn=U.lang==="en"?bm.en.N:bm.it.N;
+ var alive=S.biomi[i].sbloccato;
+ swHtml+='<button class="biome-sw-btn'+(i===b?' on':'')+'" data-a="selBioma" data-b="'+i+'">'+
+ '<span class="dot-st" style="background:'+(alive?CONFIG.CCOL[i]:'#475569')+'"></span>'+
+ '<span>'+this.esc(bn)+'</span>'+
+ '</button>';
+ }
+ swHtml+='</div>';
+
+ var h=this.renderReturnHomeBar()+
+ '<div class="frame"><div class="frame-hd"><span>'+this.esc(bNome)+' · '+this.esc(meta.capitale)+'</span></div>'+
+ swHtml+
+ '<div class="map-wrap" style="margin-bottom:10px"><canvas id="bio-map" width="768" height="432"></canvas></div>'+
+ '<div class="city-hero" style="--cc:'+CONFIG.CCOL[b]+'"><small>'+this.esc(bDesc)+'</small></div>';
+
+ if(!B.sbloccato){
+ h+='<div class="banner">'+this.tr("Bioma ancora silenzioso: prenderà vita in autonomia appena il primo cucciolo assorbirà abbastanza Linfa per nascere.","Biome still quiet: it will come to life on its own as soon as the first cub absorbs enough Sap to be born.")+'</div>';
+ }
+
+ h+='<div class="species-cols">';
+ for(var k=0;k<5;k++){
+ var sp=B.specie[k];
+ var aNome=U.lang==="en"?meta.animaliEn[k]:meta.animali[k];
+ var inds=(sp.individui||[]).slice().sort(function(a,c){return (a.eta||0)-(c.eta||0);});
+
+ h+='<div class="sp-col" style="--cc:'+CONFIG.CCOL[b]+'">'+
+ '<div class="sp-col-hd">'+this.getAnimalIcon(b,k,24)+'<b>'+this.esc(aNome)+'</b></div>';
+
+ for(var slot=0;slot<CONFIG.REGOLE.maxIndividuiPerSpecie;slot++){
+ var ind=inds[slot];
+ if(!ind){
+ h+='<div class="ind-slot empty"><span class="ind-age" style="color:var(--m)">—</span></div>';
+ }else{
+ var etaInt=SIM.clamp(Math.floor(ind.eta),0,100);
+ var slotCls="ind-slot "+ind.fase;
+ h+='<div class="'+slotCls+'">'+
+ '<div class="ind-top"><span class="ind-age">'+etaInt+'</span></div>'+
+ '<div class="ind-bar"><u style="width:'+etaInt+'%"></u></div>'+
+ '</div>';
+ }
+ }
+ h+='</div>';
+ }
+ h+='</div></div>';
+ h+=this.renderMiniDiary3();
+ return h;
+ },
+
+ menuHtml:function(){
+ var ecoRows='<div class="upg-list">';
+ for(var i=0;i<CONFIG.UPGRADES_ECO.length;i++){
+ var def=CONFIG.UPGRADES_ECO[i];
+ var lvl=SIM.getUpgLvl(S,def.id);
+ var isMax=lvl>=def.max;
+ var cost=SIM.getUpgCost(def,lvl);
+ var canBuy=!isMax&&(S.semi||0)>=cost;
+ ecoRows+='<div class="upg-row">'+
+ '<div class="upg-meta">'+
+ '<b>'+this.esc(U.lang==="en"?def.enN:def.itN)+'</b>'+
+ '<small>'+this.esc(U.lang==="en"?def.enD:def.itD)+'</small>'+
+ '<span class="upg-lvl">'+this.tr("Livello ","Level ")+lvl+'/'+def.max+'</span>'+
+ '</div>'+
+ '<button class="upg-price-btn" data-a="buyUpg" data-id="'+def.id+'"'+(canBuy?'':' disabled')+'>'+
+ (isMax?"MAX":('✨ '+this.fmtNum(cost)))+
+ '</button>'+
+ '</div>';
+ }
+ ecoRows+='</div>';
+
+ var ashRows='<div class="upg-list">';
+ for(var j=0;j<CONFIG.UPGRADES_ASH.length;j++){
+ var adef=CONFIG.UPGRADES_ASH[j];
+ var alvl=SIM.getUpgLvl(S,adef.id);
+ var aisMax=alvl>=adef.max;
+ var acost=SIM.getUpgCost(adef,alvl);
+ var acanBuy=!aisMax&&(S.cenere||0)>=acost;
+ ashRows+='<div class="upg-row ash-row">'+
+ '<div class="upg-meta">'+
+ '<b>'+this.esc(U.lang==="en"?adef.enN:adef.itN)+'</b>'+
+ '<small>'+this.esc(U.lang==="en"?adef.enD:adef.itD)+'</small>'+
+ '<span class="upg-lvl">'+this.tr("Livello ","Level ")+alvl+'/'+adef.max+'</span>'+
+ '</div>'+
+ '<button class="upg-price-btn ash-btn" data-a="buyUpg" data-id="'+adef.id+'"'+(acanBuy?'':' disabled')+'>'+
+ (aisMax?"MAX":('🔥 '+this.fmtNum(acost)))+
+ '</button>'+
+ '</div>';
+ }
+ ashRows+='</div>';
+
+ return this.renderReturnHomeBar()+
+ '<div class="frame"><div class="frame-hd"><span>'+this.tr("Sviluppo","Growth")+'</span><small style="color:#e9d5ff;font-weight:800">✨ '+this.fmtNum(S.semi||0)+' · 🔥 '+this.fmtNum(S.cenere||0)+'</small></div>'+
+ '<div class="banner">'+this.tr("I Semi d'Eco (chiusura dei cicli) potenziano i dadi e le nascite; la Cenere (difese vittoriose e cicli) alimenta i Rituali di difesa e tempra dei biomi.","Echo Seeds (completed cycles) upgrade dice and births; Ash (successful defenses and cycles) powers Biome Defense and Grit rituals.")+'</div>'+
+ '<div class="upg-sec-hd eco"><span>✨ '+this.tr("Potenziamenti Semi d'Eco","Echo Seed Upgrades")+'</span><span>✨ '+this.fmtNum(S.semi||0)+'</span></div>'+
+ ecoRows+
+ '<div class="upg-sec-hd ash" style="margin-top:14px"><span>🔥 '+this.tr("Rituali di Cenere","Ash Rituals")+'</span><span>🔥 '+this.fmtNum(S.cenere||0)+'</span></div>'+
+ ashRows+
+ '</div>';
+ },
+
+ guerreHtml:function(){
+ var allWars=S.guerre||[];
+ var activeWars=allWars.filter(function(w){return w.active;}).reverse();
+ var finishedWars=allWars.filter(function(w){return !w.active;}).slice(-CONFIG.REGOLE.maxConcludedWarsShown).reverse();
+ var list=U.warSubTab==="active"?activeWars:finishedWars;
+
+ var furiaBanner=S.lastFuriaWarNote
+ ?('<div class="banner" style="border-color:var(--furia);background:#231820;color:#f2a2b3">'+this.esc(U.lang==="en"?S.lastFuriaWarNote.en:S.lastFuriaWarNote.it)+'</div>')
+ :'';
+
+ var finishedBtnLabel=U.warSubTab==="finished"
+ ?this.tr("Ultime 20 concluse ("+finishedWars.length+")","Last 20 concluded ("+finishedWars.length+")")
+ :this.tr("Concluse ("+finishedWars.length+"/20)","Concluded ("+finishedWars.length+"/20)");
+
+ var subTabs='<div class="war-subtabs">'+
+ '<button class="war-sub-btn'+(U.warSubTab==="active"?' on':'')+'" data-a="warSub" data-sub="active">'+this.tr("In corso","Ongoing")+' ('+activeWars.length+')</button>'+
+ '<button class="war-sub-btn'+(U.warSubTab==="finished"?' on':'')+'" data-a="warSub" data-sub="finished">'+finishedBtnLabel+'</button>'+
+ '</div>';
+
+ var cardsHtml="";
+ if(list.length===0){
+ cardsHtml='<div class="banner" style="background:var(--card);border-color:var(--border);color:var(--m)">'+
+ (U.warSubTab==="active"
+ ?this.tr("Nessuna guerra in corso. Un bioma attacca in autonomia a 20/25 animali con almeno 10 adulti contro difensori con almeno 4 adulti.","No ongoing wars. A biome attacks autonomously at 20/25 animals with at least 10 adults against defenders with at least 4 adults.")
+ :this.tr("Nessuna guerra ancora conclusa.","No concluded wars yet."))+
+ '</div>';
+ }else{
+ cardsHtml=list.map(function(w){
+ var atkMeta=CONFIG.BIOMI[w.atkIdx]||CONFIG.BIOMI[0];
+ var defMeta=CONFIG.BIOMI[w.defIdx]||CONFIG.BIOMI[0];
+ var atkNome=U.lang==="en"?atkMeta.en.N:atkMeta.it.N;
+ var defNome=U.lang==="en"?defMeta.en.N:defMeta.it.N;
+ var stA=SIM.getBiomeLivingStats(S,w.atkIdx);
+ var stD=SIM.getBiomeLivingStats(S,w.defIdx);
+ var pct=Math.round(SIM.getWarHitChance(S,w.atkIdx,w.defIdx)*100);
+ var atkAd=w.active?(UI.tr("Adulti: ","Adults: ")+stA.adults):(UI.tr("Adulti: ","Adults: ")+w.startAtkAdults+" → "+w.endAtkAdults);
+ var defAd=w.active?(UI.tr("Adulti: ","Adults: ")+stD.adults):(UI.tr("Adulti: ","Adults: ")+w.startDefAdults+" → "+w.endDefAdults);
+ var fourth=w.active
+ ?('<div>'+UI.tr("Cenere totale: ","Total Ash: ")+'<b>'+UI.fmtNum(S.cenere||0)+'</b></div>')
+ :('<div>'+UI.tr("Vincitore: ","Winner: ")+'<b>'+UI.esc(U.lang==="en"?w.winnerEn:w.winnerIt)+' (+'+w.cenereGained+' 🔥)</b></div>');
+ var furiaNote=(!w.active && w.furiaIt)
+ ?('<div class="furia-war-note"><b>'+UI.tr("Ruota di Furia: ","Furia's Wheel: ")+'</b>'+UI.esc(U.lang==="en"?w.furiaEn:w.furiaIt)+'</div>')
+ :'';
+
+ return '<div class="war-card">'+
+ '<div class="war-card-hd"><span>'+(w.active?UI.tr("IN CORSO","ONGOING"):UI.tr("CONCLUSA","CONCLUDED"))+'</span><span>Tick: <b>'+w.ticksElapsed+'</b></span></div>'+
+ '<div class="war-visual">'+
+ '<div class="war-bubble atk"><small style="color:var(--m);font-size:.66rem">'+UI.tr("ATTACCANTE","ATTACKER")+'</small><br>'+UI.esc(atkNome)+'<br><small style="color:var(--m);font-weight:600">'+atkAd+'</small></div>'+
+ '<div class="war-arrows">═══▶<br><span>'+pct+'%</span></div>'+
+ '<div class="war-bubble def"><small style="color:var(--m);font-size:.66rem">'+UI.tr("DIFENSORE","DEFENDER")+'</small><br>'+UI.esc(defNome)+'<br><small style="color:var(--m);font-weight:600">'+defAd+'</small></div>'+
+ '</div>'+
+ '<div class="war-stats">'+
+ '<div>'+UI.tr("Forza: ","Force: ")+'<b>'+w.allocatedForce+'</b></div>'+
+ '<div>'+UI.tr("Nemici caduti: ","Enemies fallen: ")+'<b>'+w.enemyKills+'</b></div>'+
+ '<div>'+UI.tr("Adulti persi: ","Adults lost: ")+'<b>'+w.ownAdultLosses+'</b></div>'+
+ fourth+
+ '</div>'+
+ furiaNote+
+ '</div>';
+ }).join("");
+ }
+
+ return this.renderReturnHomeBar()+
+ '<div class="frame"><div class="frame-hd"><span>⚔️ '+this.tr("Guerre","Wars")+'</span><small style="color:#fed7aa;font-weight:800">🔥 '+this.fmtNum(S.cenere||0)+' '+this.tr("Cenere","Ash")+'</small></div>'+
+ furiaBanner+subTabs+cardsHtml+
+ '</div>';
+ },
+
+ statsHtml:function(){
+ var cicliBiomiTxt=[];
+ for(var b=0;b<CONFIG.BIOMI.length;b++){
+ var B=S.biomi[b],meta=CONFIG.BIOMI[b],cB=0;
+ for(var k=0;k<5;k++)cB+=(B.specie[k].cicliCompiuti||0);
+ cicliBiomiTxt.push((U.lang==="en"?meta.en.N:meta.it.N)+": "+cB);
+ }
+
+ var bestStr=(S.stats.migliorLancio||0)>0
+ ?(this.fmtNum(S.stats.migliorLancio)+" ("+this.esc(U.lang==="en"?(S.stats.migliorCombEn||""):(S.stats.migliorCombIt||""))+")")
+ :"—";
+
+ var leftCol='<div class="stats-col"><div class="stats-col-hd">'+this.tr("Numeri","Numbers")+'</div>'+
+ '<div class="num-item"><small>'+this.tr("Linfa totale","Total Sap")+'</small><b>'+this.fmtNum(S.linfaTotale)+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Semi d'Eco totali","Total Echo Seeds")+'</small><b>'+this.fmtNum(S.semiTotali||0)+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Cenere totale","Total Ash")+'</small><b>'+this.fmtNum(S.cenereTotale||0)+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Biomi vivi","Living biomes")+'</small><b>'+SIM.contaBiomiVivi(S)+'/5</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Individui vivi","Alive individuals")+'</small><b>'+SIM.contaIndividuiVivi(S)+'/125</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Lanci (manuali)","Rolls (manual)")+'</small><b>'+S.lanci+' ('+(S.lanciManuali||0)+')</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Combinazioni","Combinations")+'</small><b>'+(S.stats.combinazioni||0)+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Nascite / Evoluzioni","Births / Evolutions")+'</small><b>'+S.stats.nascite+' / '+S.stats.evoluzioni+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Cicli completati totali","Completed cycles")+'</small><b>'+S.stats.mortiCiclo+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Cicli per bioma","Cycles per biome")+'</small><b>'+this.esc(cicliBiomiTxt.join(" · "))+'</b></div>'+
+ '<div class="num-item"><small>'+this.tr("Miglior lancio","Best roll")+'</small><b>'+bestStr+'</b></div>'+
+ '</div>';
+
+ var rightCol='<div class="stats-col"><div class="stats-col-hd">'+this.tr("Diario","Diary")+'</div>'+
+ (S.diario.slice(0,22).map(function(e){
+ return '<div class="diary-entry"><span>'+e.t+'s</span>'+UI.esc(U.lang==="en"?e.en:e.it)+'</div>';
+ }).join("")||'<div class="dim">'+this.tr("Nessun evento ancora registrato.","No events recorded yet.")+'</div>')+
+ '</div>';
+
+ return this.renderReturnHomeBar()+
+ '<div class="frame"><div class="frame-hd"><span>Stats</span></div>'+
+ '<div class="stats-two-col">'+leftCol+rightCol+'</div>'+
+ '</div>';
+ },
+
+ opzioniHtml:function(){
+ return this.renderReturnHomeBar()+
+ '<div class="frame"><div class="frame-hd"><span>'+this.tr("Opzioni","Options")+'</span><small style="color:var(--m)">'+CONFIG.VERSIONE+'</small></div>'+
+ '<div class="opt-section-lbl">'+this.tr("Tempo & Guida","Time & Guide")+'</div>'+
+ '<div class="row" id="opt-vel-row">'+
+ '<button class="mini'+(U.vel===0?' on':'')+'" data-a="vel" data-v="0">⏸ '+this.tr("Pausa","Pause")+'</button>'+
+ '<button class="mini'+(U.vel===1?' on':'')+'" data-a="vel" data-v="1">1x</button>'+
+ '<button class="mini'+(U.vel===10?' on':'')+'" data-a="vel" data-v="10">10x</button>'+
+ '<button class="mini help-opt-btn" data-a="openHelp">? '+this.tr("Guida","Help")+'</button>'+
+ '</div>'+
+ '<div class="opt-section-lbl">'+this.tr("Preferenze & Salvataggio","Preferences & Save")+'</div>'+
+ '<div class="row">'+
+ '<button class="mini" data-a="lang">'+this.tr("Lingua: IT","Language: EN")+'</button>'+
+ '<button class="mini" data-a="audio">'+this.tr("Audio: ","Audio: ")+(AUDIO.enabled?"ON":"OFF")+'</button>'+
+ '<button class="mini" data-a="diceTheme">'+this.tr("Stile dadi: ","Dice style: ")+(U.diceTheme==="emoji"?"Emoji":"Line-Art")+'</button>'+
+ '<button class="mini" data-a="motion">'+this.tr("Moto ridotto: ","Reduced motion: ")+(U.noMotion?"ON":"OFF")+'</button>'+
+ '<button class="mini" data-a="expSave">'+this.tr("Esporta","Export")+'</button>'+
+ '<button class="mini" data-a="impSave">'+this.tr("Importa","Import")+'</button>'+
+ '<button class="mini" data-a="reset">'+this.tr("Nuovo mondo","New world")+'</button>'+
+ '</div>'+
+ '<textarea class="sv-box" id="sv-box" placeholder="'+this.esc(this.tr("Codice salvataggio JSON...","Save JSON code..."))+'"></textarea>'+
+ '</div>';
+ },
+
+ showHelpModal:function(){
+ var m=document.getElementById("modal");if(!m)return;
+ m.innerHTML='<div class="mbox"><div class="frame-hd"><span>'+this.tr("Guida al Mondo","World Guide")+'</span><button class="mini" data-a="closeModal">✕</button></div>'+
+ '<div class="help-section"><b>'+this.tr("1. I dadi di Furia e il Colore","1. Furia\'s Dice & Color")+'</b>'+
+ this.tr("Furia lancia da 1 a 5 dadi in base al suo temperamento. Le combinazioni con Colore (es. Coppia + Colore, Tris + Colore, Colore puro) si attivano solo nei lanci da 5 dadi, escludendo i dadi spaiati dal controllo del colore.","Furia rolls 1 to 5 dice based on temperament. Color combinations (e.g. Pair + Color, Three of a kind + Color, Flush) trigger only on 5-dice rolls, excluding non-scoring kicker dice from the color check.")+
+ '</div>'+
+ '<div class="help-section"><b>'+this.tr("2. Le 5 età e i colori","2. The 5 Ages & Colors")+'</b>'+
+ this.tr("Ogni riquadro mostra età (0–100) e barra vitalità, ordinato dal più giovane in alto al più anziano in basso: verde (0–9), azzurro (10–19), giallo (20–59), arancione (60–89), rosso (90–100).","Each box shows age (0–100) and vitality bar, sorted youngest at top to oldest at bottom: green (0–9), light blue (10–19), yellow (20–59), orange (60–89), red (90–100).")+
+ '</div>'+
+ '<div class="help-section"><b>'+this.tr("3. Guerre, Cenere e Rituali","3. Wars, Ash & Rituals")+'</b>'+
+ this.tr("Un bioma con almeno 20/25 animali e 10 adulti può attaccare in autonomia difensori con almeno 4 adulti. Ottieni Cenere quando vince il difensore (e alla chiusura dei cicli) per attivare i Rituali di Cenere in Sviluppo; se vince l'attaccante, Furia gira la ruota punitiva contro l'attaccante.","A biome with at least 20/25 animals and 10 adults can autonomously attack defenders with at least 4 adults. Earn Ash when defenders win (and on completed life cycles) to activate Ash Rituals in Growth; if the attacker wins, Furia spins the punitive wheel against the attacker.")+
+ '</div>'+
+ '<button class="btn big" data-a="closeModal">'+this.tr("Ho capito","Got it")+'</button></div>';
+ m.className="on";
+ },
+
+ /* Aggiornamento leggero a ogni tick: aggiorna header, countdown e stats senza ricostruire il DOM */
+ updateTickLight:function(){
+ if(!S)return;
+ var pauseTag=U.vel===0?(" · "+this.tr("PAUSA","PAUSED")):"";
+ var sub=document.getElementById("subtit");
+ if(sub)sub.textContent=this.tr("Ciclo continuo · Lanci: ","Continuous cycle · Rolls: ")+S.lanci+" · "+Math.floor(S.t)+"s"+pauseTag;
+
+ var bf=document.getElementById("bdg-f");if(bf)bf.textContent="💧 "+this.fmtNum(S.linfa)+" Linfa";
+ var be=document.getElementById("bdg-e");if(be)be.textContent="✨ "+this.fmtNum(S.semi||0);
+ var bc=document.getElementById("bdg-c");if(bc)bc.textContent="🔥 "+this.fmtNum(S.cenere||0);
+ var bl=document.getElementById("bdg-life");if(bl)bl.textContent="🐾 "+SIM.contaIndividuiVivi(S)+"/125";
+
+ if(U.view==="home" && !S.specialWheel){
+ var intervalSec=SIM.getLancioIntervalSec(S);
+ var rem=Math.max(0,S.prossimoLancio-S.t);
+ var pct=SIM.clamp(100*(1-rem/intervalSec),0,100);
+ var secEl=document.getElementById("auto-roll-sec");
+ var barEl=document.getElementById("auto-roll-bar");
+ if(secEl)secEl.textContent=Math.ceil(rem)+"s";
+ if(barEl)barEl.style.width=pct+"%";
+
+ var manBtn=document.getElementById("btn-manual-roll");
+ if(manBtn){
+ var nowSec=Date.now()/1000;
+ var coolRem=Math.max(0,Math.ceil(U.coolUntil-nowSec));
+ var manCost=SIM.getManualRollCost(S);
+ var canForce=S.linfa>=manCost&&coolRem<=0;
+ manBtn.disabled=!canForce;
+ if(coolRem>0){
+ manBtn.innerHTML='<span>'+this.tr("Attendi","Wait")+'</span><b>'+coolRem+'s</b>';
+ }else{
+ manBtn.innerHTML='<span>'+this.tr("...lanciali tutti tu!","...roll them all yourself!")+'</span><small style="font-weight:900">'+this.fmtNum(manCost)+' '+this.tr("Linfa","Sap")+'</small>';
+ }
+ }
+
+ var bioStats=SIM.getBiomeLivingStats(S,U.focB);
+ var aliveEl=document.getElementById("home-bio-alive");
+ var ageEl=document.getElementById("home-bio-age");
+ if(aliveEl)aliveEl.textContent=bioStats.count+"/25";
+ if(ageEl)ageEl.textContent=bioStats.count>0?(bioStats.avgAge+" "+this.tr("anni","yrs")):"—";
+ }else if(U.view==="bioma"){
+ this.renderFull();
+ }else if(U.view==="guerre" && U.warSubTab==="active"){
+ this.renderFull();
+ }
+ },
+
+ renderFull:function(){
+ if(!S)return;
+ document.body.classList.toggle("no-motion",this.motoRidotto());
+ this.updateTickLight();
+
+ document.getElementById("nav-bioma").textContent=this.tr("Biomi","Biomes");
+ document.getElementById("nav-menu").textContent=this.tr("Sviluppo","Growth");
+ document.getElementById("nav-guerre").textContent=this.tr("Guerre","Wars");
+ document.getElementById("nav-stats").textContent="Stats";
+ document.getElementById("nav-opzioni").textContent=this.tr("Opzioni","Options");
+
+ var navs=document.querySelectorAll("#bottom-nav .nav-btn");
+ for(var n=0;n<navs.length;n++)navs[n].classList.toggle("on",navs[n].getAttribute("data-v")===U.view);
+
+ var p=document.getElementById("p");
+ if(U.view==="bioma"){
+ p.innerHTML=this.biomaHtml();
+ try{this.drawBiomeMiniMap();}catch(e){}
+ }else if(U.view==="menu"){
+ p.innerHTML=this.menuHtml();
+ }else if(U.view==="guerre"){
+ p.innerHTML=this.guerreHtml();
+ }else if(U.view==="stats"){
+ p.innerHTML=this.statsHtml();
+ }else if(U.view==="opzioni"){
+ p.innerHTML=this.opzioniHtml();
+ }else{
+ p.innerHTML=this.homeHtml();
+ var cv=document.getElementById("wb-map");
+ if(cv)cv.addEventListener("click",this.handleMapTap);
+ try{this.drawWorldMap();}catch(e){}
+ }
+ if(U.diceAnim>0)U.diceAnim=Math.max(0,U.diceAnim-0.25);
+ }
+};
+
+/* ============================================================================
+ * 6. ACTIONS & BOOTSTRAP LOOP
+ * ============================================================================ */
+function findUpgradeDef(id){
+ for(var i=0;i<CONFIG.UPGRADES_ECO.length;i++)if(CONFIG.UPGRADES_ECO[i].id===id)return CONFIG.UPGRADES_ECO[i];
+ for(var j=0;j<CONFIG.UPGRADES_ASH.length;j++)if(CONFIG.UPGRADES_ASH[j].id===id)return CONFIG.UPGRADES_ASH[j];
+ return null;
+}
+
+function agisci(a,el){
+ AUDIO.unlock();
+ if(a==="go"){U.view=el.getAttribute("data-v")||"home";}
+ else if(a==="selBioma"){U.focB=SIM.clamp(Number(el.getAttribute("data-b")),0,4);}
+ else if(a==="warSub"){U.warSubTab=el.getAttribute("data-sub")||"active";}
+ else if(a==="vel"){U.vel=Number(el.getAttribute("data-v"));}
+ else if(a==="openHelp"){UI.showHelpModal();return;}
+ else if(a==="lancia"){
+ if(S.specialWheel)return;
+ var nowSec=Date.now()/1000;
+ var manCost=SIM.getManualRollCost(S);
+ if(S.linfa>=manCost&&nowSec>=U.coolUntil){
+ S.linfa-=manCost;
+ U.coolUntil=nowSec+CONFIG.REGOLE.forzaCooldownSec;
+ SIM.lanciaDadiD20(S,true,false);
+ S.prossimoLancio=S.t+SIM.getLancioIntervalSec(S);
+ }
+ }
+ else if(a==="buyUpg"){
+ var id=el.getAttribute("data-id");
+ var def=findUpgradeDef(id);
+ if(def){
+ var lvl=SIM.getUpgLvl(S,def.id);
+ var cost=SIM.getUpgCost(def,lvl);
+ var pool=def.currency==="cenere"?(S.cenere||0):(S.semi||0);
+ if(lvl<def.max&&pool>=cost){
+ if(def.currency==="cenere")S.cenere-=cost;
+ else S.semi-=cost;
+ if(!S.upgrades)S.upgrades={};
+ S.upgrades[def.id]=lvl+1;
+ AUDIO.play("buy");
+ SIM.addLog(S,"Potenziato: "+def.itN+" (Lv."+(lvl+1)+").","Upgraded: "+def.enN+" (Lv."+(lvl+1)+").",true);
+ }
+ }
+ }
+ else if(a==="lang"){U.lang=U.lang==="it"?"en":"it";}
+ else if(a==="audio"){
+ AUDIO.enabled=!AUDIO.enabled;
+ if(AUDIO.enabled)AUDIO.play("buy");
+ }
+ else if(a==="diceTheme"){U.diceTheme=U.diceTheme==="emoji"?"minimal":"emoji";}
+ else if(a==="motion"){U.noMotion=!U.noMotion;}
+ else if(a==="expSave"){
+ SAVE.saveLocal();
+ var box=document.getElementById("sv-box");
+ if(box)box.value=JSON.stringify({v:CONFIG.SCHEMA_VERSIONE,S:S});
+ UI.toast(UI.tr("Salvataggio esportato","Save exported"));
+ }
+ else if(a==="impSave"){
+ var box2=document.getElementById("sv-box");
+ try{
+ var p=JSON.parse((box2&&box2.value||"").trim());
+ if(p&&p.v===CONFIG.SCHEMA_VERSIONE&&p.S&&Array.isArray(p.S.biomi)&&p.S.biomi.length===5){
+ S=p.S;S.specialWheel=null;SIM.trimConcludedWars(S);UI.toast(UI.tr("Salvataggio importato","Save imported"));
+ }else UI.toast(UI.tr("Codice non valido","Invalid code"));
+ }catch(e){UI.toast(UI.tr("Codice non valido","Invalid code"));}
+ }
+ else if(a==="finishWheel"){clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);SIM.finishWheelNow(S);}
+ else if(a==="reset"){
+ clearTimeout(U.wheelTimer);
+ clearTimeout(U.wheelEndTimer);
+ S=SIM.nuovoStato();
+ SIM.lanciaDadiD20(S,false,false);
+ UI.toast(UI.tr("Nuovo mondo creato","New world created"));
+ }
+ else if(a==="closeModal"){
+ var m=document.getElementById("modal");if(m){m.className="";m.innerHTML="";}
+ }
+ SAVE.saveLocal();
+ UI.renderFull();
+}
+
+function showOfflineModal(sec,linfaDelta,semiDelta,ashDelta){
+ var m=document.getElementById("modal");if(!m)return;
+ m.innerHTML='<div class="mbox"><div class="frame-hd"><span>'+UI.tr("Bentornato sull'Isola","Welcome back to the Island")+'</span></div>'+
+ '<div class="dim" style="margin-bottom:10px">'+
+ UI.tr("Mentre eri lontano per ","While you were away for ")+'<b>'+Math.floor(sec/60)+'m '+(sec%60)+'s</b>, '+
+ UI.tr("il ciclo naturale ha prodotto ","the natural cycle produced ")+'<b>+'+UI.fmtNum(linfaDelta)+' Linfa</b>'+
+ (semiDelta>0?(', <b>+'+UI.fmtNum(semiDelta)+' '+UI.tr("Semi d'Eco","Echo Seeds")+'</b>'):'')+
+ (ashDelta>0?(', <b>+'+UI.fmtNum(ashDelta)+' '+UI.tr("Cenere","Ash")+'</b>'):'')+'.'+
+ '</div>'+
+ '<button class="btn big" data-a="closeModal">'+UI.tr("Continua","Continue")+'</button></div>';
+ m.className="on";
+}
+
+function avvia(){
+ UI.initWorldMap();
+ var loaded=SAVE.loadLocal();
+ if(loaded){
+ S=loaded;
+ var now=Date.now();
+ var assenzaSec=SIM.clamp(Math.floor((now-(S.lastTs||now))/1000),0,CONFIG.REGOLE.offlineMaxSec);
+ if(assenzaSec>=20){
+ var primaLinfa=S.linfa,primaSemi=S.semi||0,primaCenere=S.cenere||0;
+ var passi=Math.floor(assenzaSec/CONFIG.REGOLE.passo);
+ for(var i=0;i<passi;i++)SIM.passoTempo(S,CONFIG.REGOLE.passo,true);
+ var diffL=Math.max(0,S.linfa-primaLinfa);
+ var diffS=Math.max(0,(S.semi||0)-primaSemi);
+ var diffC=Math.max(0,(S.cenere||0)-primaCenere);
+ if(diffL>0||diffS>0||diffC>0)showOfflineModal(assenzaSec,diffL,diffS,diffC);
+ }
+ }else{
+ S=SIM.nuovoStato();
+ SIM.lanciaDadiD20(S,false,false);
+ }
+ UI.renderFull();
+
+ setInterval(function(){
+ if(!S||document.hidden||U.vel<=0||S.specialWheel)return;
+  if(S&&S.specialWheel&&S.specialWheel.expiresAt&&Date.now()>=S.specialWheel.expiresAt){SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();}
+ var steps=U.vel===10?5:1;
+ var needFull=false;
+ for(var k=0;k<steps;k++){
+ if(SIM.passoTempo(S,CONFIG.REGOLE.passo,false))needFull=true;
+ if(S.specialWheel){needFull=true;break;}
+ }
+ if(needFull)UI.renderFull();
+ else UI.updateTickLight();
+ if(Math.floor(S.t)%15===0)SAVE.saveLocal();
+ },1000);
+}
+
+document.addEventListener("click",function(e){
+ var el=e.target.closest?e.target.closest("[data-a]"):null;
+ if(el&&!el.disabled){e.preventDefault();agisci(el.getAttribute("data-a"),el);}
+});
+document.addEventListener("visibilitychange",function(){if(document.hidden)SAVE.saveLocal();});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",avvia);else avvia();
+if("serviceWorker" in navigator){
+ window.addEventListener("load",function(){
+ navigator.serviceWorker.register("./sw.js").catch(function(){});
+ });
+}
+
+</script>
+</body>
+</html>
