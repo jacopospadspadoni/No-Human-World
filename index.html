@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v07)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v08)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v07",
+ VERSIONE:"NHW_new_v08",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v07",
+ SAVE_KEY:"nhw_living_cycle_new_v08",
 
  BIOMI:[
  {
@@ -407,7 +407,11 @@ var CONFIG={
  forzaBaseCosto:650,
  forzaCooldownSec:4,
  offlineMaxSec:28800,
- wheelTriggerEveryRolls:12
+ wheelTriggerEveryRolls:12,
+  prestigeBaseSemi:25,
+  prestigeBaseCenere:40,
+  prestigeStepSemi:15,
+  prestigeStepCenere:25
  },
 
  FURIA_WAR_SLICES:[
@@ -649,7 +653,7 @@ var SIM={
  for(var k=0;k<5;k++){
  var sp=B.specie[k];
  var val=sp.valore||(k+1);
- while((sp.individui||[]).length<CONFIG.REGOLE.maxIndividuiPerSpecie){
+ while((sp.individui||[]).length<this.getSpeciesMaxSlots(st,b,k)){
  var cuccSpecie=this.countCuccioliInSpecies(sp);
  var cuccAltriBioma=0;
  for(var j=0;j<5;j++){
@@ -838,67 +842,67 @@ var SIM={
  },
 
  initiateAutonomousWars:function(st){
-  if(!st.guerre)st.guerre=[];
-  for(var a=0;a<CONFIG.BIOMI.length;a++){
-   var B=st.biomi[a];
-   if(!B||!B.sbloccato||(B.fatigueRemaining||0)>0)continue;
+ if(!st.guerre)st.guerre=[];
+ for(var a=0;a<CONFIG.BIOMI.length;a++){
+ var B=st.biomi[a];
+ if(!B||!B.sbloccato||(B.fatigueRemaining||0)>0)continue;
 
-   /* Attacco sequenziale: un bioma apre un solo scontro attivo alla volta */
-   var alreadyAtk=false;
-   for(var w=0;w<st.guerre.length;w++){
-    if(st.guerre[w].active && st.guerre[w].atkIdx===a){alreadyAtk=true;break;}
-   }
-   if(alreadyAtk)continue;
+ /* Attacco sequenziale: un bioma apre un solo scontro attivo alla volta */
+ var alreadyAtk=false;
+ for(var w=0;w<st.guerre.length;w++){
+ if(st.guerre[w].active && st.guerre[w].atkIdx===a){alreadyAtk=true;break;}
+ }
+ if(alreadyAtk)continue;
 
-   /* Requisiti verificati prima di aprire il prossimo scontro della catena */
-   var statsA=this.getBiomeLivingStats(st,a);
-   if(statsA.count<CONFIG.REGOLE.minSlotAttacco || statsA.adults<CONFIG.REGOLE.minAdultiAttacco)continue;
+ /* Requisiti verificati prima di aprire il prossimo scontro della catena */
+ var statsA=this.getBiomeLivingStats(st,a);
+ if(statsA.count<CONFIG.REGOLE.minSlotAttacco || statsA.adults<CONFIG.REGOLE.minAdultiAttacco)continue;
 
-   var forceA=this.getBiomeForce(st,a);
-   if(forceA<=0)continue;
+ var forceA=this.getBiomeForce(st,a);
+ if(forceA<=0)continue;
 
-   /* Sceglie il primo difensore valido in ordine sequenziale (con >=4 adulti e forza <= attaccante) */
-   var chosenDef=-1,chosenForceD=0,chosenStatsD=null;
-   for(var d=0;d<CONFIG.BIOMI.length;d++){
-    if(d===a)continue;
-    var statsD=this.getBiomeLivingStats(st,d);
-    var forceD=this.getBiomeForce(st,d);
-    if(statsD.adults>=CONFIG.REGOLE.minAdultiDifesa && forceD<=forceA){
-     chosenDef=d;
-     chosenForceD=forceD;
-     chosenStatsD=statsD;
-     break;
-    }
-   }
-   if(chosenDef<0)continue;
+ /* Sceglie il primo difensore valido in ordine sequenziale (con >=4 adulti e forza <= attaccante) */
+ var chosenDef=-1,chosenForceD=0,chosenStatsD=null;
+ for(var d=0;d<CONFIG.BIOMI.length;d++){
+ if(d===a)continue;
+ var statsD=this.getBiomeLivingStats(st,d);
+ var forceD=this.getBiomeForce(st,d);
+ if(statsD.adults>=CONFIG.REGOLE.minAdultiDifesa && forceD<=forceA){
+ chosenDef=d;
+ chosenForceD=forceD;
+ chosenStatsD=statsD;
+ break;
+ }
+ }
+ if(chosenDef<0)continue;
 
-   var alloc=Math.max(1,Math.min(forceA,Math.max(chosenForceD,Math.round(forceA*0.5))));
-   st.guerre.push({
-    id:"w_"+Math.floor(st.t)+"_"+a+"_"+chosenDef,
-    atkIdx:a,
-    defIdx:chosenDef,
-    allocatedForce:Math.round(alloc),
-    startAtkAdults:statsA.adults,
-    startDefAdults:chosenStatsD.adults,
-    endAtkAdults:null,
-    endDefAdults:null,
-    enemyKills:0,
-    ownAdultLosses:0,
-    ticksElapsed:0,
-    cenereGained:0,
-    winnerIt:"",
-    winnerEn:"",
-    furiaIt:"",
-    furiaEn:"",
-    active:true
-   });
-   this.addLog(
-    st,
-    CONFIG.BIOMI[a].it.N+" avvia scontro sequenziale contro "+CONFIG.BIOMI[chosenDef].it.N+" (forza "+Math.round(alloc)+").",
-    CONFIG.BIOMI[a].en.N+" starts sequential clash against "+CONFIG.BIOMI[chosenDef].en.N+" (force "+Math.round(alloc)+").",
-    true
-   );
-  }
+ var alloc=Math.max(1,Math.min(forceA,Math.max(chosenForceD,Math.round(forceA*0.5))));
+ st.guerre.push({
+ id:"w_"+Math.floor(st.t)+"_"+a+"_"+chosenDef,
+ atkIdx:a,
+ defIdx:chosenDef,
+ allocatedForce:Math.round(alloc),
+ startAtkAdults:statsA.adults,
+ startDefAdults:chosenStatsD.adults,
+ endAtkAdults:null,
+ endDefAdults:null,
+ enemyKills:0,
+ ownAdultLosses:0,
+ ticksElapsed:0,
+ cenereGained:0,
+ winnerIt:"",
+ winnerEn:"",
+ furiaIt:"",
+ furiaEn:"",
+ active:true
+ });
+ this.addLog(
+ st,
+ CONFIG.BIOMI[a].it.N+" avvia scontro sequenziale contro "+CONFIG.BIOMI[chosenDef].it.N+" (forza "+Math.round(alloc)+").",
+ CONFIG.BIOMI[a].en.N+" starts sequential clash against "+CONFIG.BIOMI[chosenDef].en.N+" (force "+Math.round(alloc)+").",
+ true
+ );
+ }
  },
 
  stepWarsTick:function(st,isOffline){
@@ -1295,6 +1299,67 @@ var SIM={
  return structuralChange;
  },
 
+ getSpeciesExtraSlots:function(st,bIdx,kIdx){
+  var ex=(st&&st.prestigeExtraSlots)||{};
+  return Number(ex[bIdx+"_"+kIdx]||0);
+ },
+
+ getSpeciesMaxSlots:function(st,bIdx,kIdx){
+  return CONFIG.REGOLE.maxIndividuiPerSpecie+this.getSpeciesExtraSlots(st,bIdx,kIdx);
+ },
+
+ getBiomeMaxSlots:function(st,bIdx){
+  var tot=0;
+  for(var k=0;k<5;k++)tot+=this.getSpeciesMaxSlots(st,bIdx,k);
+  return tot;
+ },
+
+ getTotalWorldSlots:function(st){
+  var tot=0;
+  for(var b=0;b<5;b++)tot+=this.getBiomeMaxSlots(st,b);
+  return tot;
+ },
+
+ getPrestigeCost:function(st){
+  var pLvl=(st&&st.prestigeCount)||0;
+  return {
+   semi:CONFIG.REGOLE.prestigeBaseSemi+pLvl*CONFIG.REGOLE.prestigeStepSemi,
+   cenere:CONFIG.REGOLE.prestigeBaseCenere+pLvl*CONFIG.REGOLE.prestigeStepCenere
+  };
+ },
+
+ canDoPrestige:function(st){
+  if(!st)return false;
+  var cost=this.getPrestigeCost(st);
+  return (st.semi||0)>=cost.semi && (st.cenere||0)>=cost.cenere;
+ },
+
+ doPrestigeAddSlot:function(st,bIdx,kIdx){
+  if(!this.canDoPrestige(st))return false;
+  bIdx=this.clamp(Number(bIdx),0,4);
+  kIdx=this.clamp(Number(kIdx),0,4);
+  var prevExtra=Object.assign({},st.prestigeExtraSlots||{});
+  var key=bIdx+"_"+kIdx;
+  prevExtra[key]=(prevExtra[key]||0)+1;
+  var nextPrestigeCount=(st.prestigeCount||0)+1;
+  var nextSeed=((st.seed||1)+nextPrestigeCount*7919)|0;
+
+  var fresh=this.nuovoStato(nextSeed);
+  fresh.prestigeCount=nextPrestigeCount;
+  fresh.prestigeExtraSlots=prevExtra;
+  fresh.lastPrestigeChoice={b:bIdx,k:kIdx,newCap:this.getSpeciesMaxSlots(fresh,bIdx,kIdx)};
+  var bMeta=CONFIG.BIOMI[bIdx];
+  var spNome=bMeta.animali[kIdx];
+  var spNomeEn=bMeta.animaliEn[kIdx];
+  this.addLog(
+   fresh,
+   "Prestigio "+nextPrestigeCount+": "+spNome+" ("+bMeta.it.N+") ora ha "+fresh.lastPrestigeChoice.newCap+" slot!",
+   "Prestige "+nextPrestigeCount+": "+spNomeEn+" ("+bMeta.en.N+") now has "+fresh.lastPrestigeChoice.newCap+" slots!",
+   true
+  );
+  return fresh;
+ },
+
  nuovoStato:function(seed){
  var s0=(seed||Math.floor(Math.random()*2147483646)+1)|0;
  var st={
@@ -1320,6 +1385,9 @@ var SIM={
  lastDiceCount:3,
  specialWheel:null,
  lastFuriaWarNote:null,
+   prestigeCount:0,
+   prestigeExtraSlots:{},
+   lastPrestigeChoice:null,
  upgrades:{
  stimolo_furia:0,richiamo_dadi:0,mano_lesta:0,risonanza_bioma:0,eco_ciclo:0,
  scudo_bioma:0,tempra_guerriera:0,seme_ardente:0
@@ -1404,7 +1472,9 @@ var U={
  wheelSpinning:false,
  wheelTimer:null,
  wheelEndTimer:null,
- wheelClearTimer:null
+ wheelClearTimer:null,
+ prestigeB:0,
+ prestigeK:0
 };
 
 var UI={
@@ -1667,7 +1737,7 @@ var UI={
  }
 
  /* Barra HUD compatta in alto */
- var hudTxt=bNome.toUpperCase()+" · "+this.tr("Vivi: ","Alive: ")+stats.count+"/25 · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
+ var hudTxt=bNome.toUpperCase()+" · "+this.tr("Vivi: ","Alive: ")+stats.count+"/"+SIM.getBiomeMaxSlots(S,b) · "+this.tr("Adulti: ","Adults: ")+stats.adults+" · "+this.tr("Forza: ","Force: ")+force;
  ctx.font="800 15px 'Plus Jakarta Sans', sans-serif";
  var hudW=Math.min(W-24,ctx.measureText(hudTxt).width+32);
  ctx.fillStyle="rgba(9,13,22,0.88)";
@@ -1883,7 +1953,8 @@ var UI={
  h+='<div class="sp-col" style="--cc:'+CONFIG.CCOL[b]+'">'+
  '<div class="sp-col-hd">'+this.getAnimalIcon(b,k,24)+'<b>'+this.esc(aNome)+'</b></div>';
 
- for(var slot=0;slot<CONFIG.REGOLE.maxIndividuiPerSpecie;slot++){
+ var maxSpSlots=SIM.getSpeciesMaxSlots(S,b,k);
+  for(var slot=0;slot<maxSpSlots;slot++){
  var ind=inds[slot];
  if(!ind){
  h+='<div class="ind-slot empty"><span class="ind-age" style="color:var(--m)">—</span></div>';
@@ -1901,6 +1972,52 @@ var UI={
  h+='</div></div>';
  h+=this.renderMiniDiary3();
  return h;
+ },
+
+ prestigeSectionHtml:function(){
+  var pLvl=S.prestigeCount||0;
+  var cost=SIM.getPrestigeCost(S);
+  var ok=SIM.canDoPrestige(S);
+  var selB=SIM.clamp(U.prestigeB||0,0,4);
+  var selK=SIM.clamp(U.prestigeK||0,0,4);
+  var bMeta=CONFIG.BIOMI[selB];
+  var spNome=U.lang==="en"?bMeta.animaliEn[selK]:bMeta.animali[selK];
+  var bNome=U.lang==="en"?bMeta.en.N:bMeta.it.N;
+  var curCap=SIM.getSpeciesMaxSlots(S,selB,selK);
+  var nextCap=curCap+1;
+
+  var bBtns="";
+  for(var b=0;b<5;b++){
+   var bn=U.lang==="en"?CONFIG.BIOMI[b].en.N:CONFIG.BIOMI[b].it.N;
+   bBtns+='<button type="button" class="mini'+(b===selB?' on':'')+'" data-a="selPrestB" data-b="'+b+'">'+this.esc(bn)+'</button>';
+  }
+
+  var kBtns="";
+  for(var k=0;k<5;k++){
+   var an=U.lang==="en"?bMeta.animaliEn[k]:bMeta.animali[k];
+   var capK=SIM.getSpeciesMaxSlots(S,selB,k);
+   kBtns+='<button type="button" class="mini'+(k===selK?' on':'')+'" data-a="selPrestK" data-k="'+k+'">'+this.esc(an)+' ('+capK+')</button>';
+  }
+
+  var lastBadge=S.lastPrestigeChoice
+   ?('<div class="dim" style="margin-bottom:6px">'+this.tr("Ultimo slot aggiunto: ","Last extra slot added: ")+'<b>'+this.esc(CONFIG.BIOMI[S.lastPrestigeChoice.b].animali[S.lastPrestigeChoice.k])+' ('+S.lastPrestigeChoice.newCap+' slot)</b></div>')
+   :'';
+
+  return '<div class="upg-sec-hd" style="margin-top:16px;color:#fde68a"><span>👑 '+this.tr("Prestigio · Slot Extra","Prestige · Extra Slot")+'</span><span>'+this.tr("Prestigio ","Prestige ")+pLvl+'</span></div>'+
+   '<div class="war-card" style="border-color:var(--amber)">'+
+   '<div class="dim" style="margin-bottom:6px">'+
+   this.tr(
+    "Azzera la run attuale ma aggiunge +1 slot vuoto permanente alla specie scelta (attualmente "+spNome+" in "+bNome+": "+curCap+" → "+nextCap+" slot). Costo: ✨ "+cost.semi+" Semi d'Eco + 🔥 "+cost.cenere+" Cenere.",
+    "Resets the current run while adding +1 permanent empty slot to the chosen species (currently "+spNome+" in "+bNome+": "+curCap+" → "+nextCap+" slots). Cost: ✨ "+cost.semi+" Echo Seeds + 🔥 "+cost.cenere+" Ash."
+   )+
+   '</div>'+
+   lastBadge+
+   '<div class="row">'+bBtns+'</div>'+
+   '<div class="row">'+kBtns+'</div>'+
+   '<button type="button" class="btn big" data-a="doPrestige"'+(ok?'':' disabled')+'>'+
+   '👑 '+this.tr("Prestigio: +1 Slot a ","Prestige: +1 Slot to ")+this.esc(spNome)+' (✨ '+cost.semi+' · 🔥 '+cost.cenere+')'+
+   '</button>'+
+   '</div>';
  },
 
  menuHtml:function(){
@@ -1951,7 +2068,8 @@ var UI={
  ecoRows+
  '<div class="upg-sec-hd ash" style="margin-top:14px"><span>🔥 '+this.tr("Rituali di Cenere","Ash Rituals")+'</span><span>🔥 '+this.fmtNum(S.cenere||0)+'</span></div>'+
  ashRows+
- '</div>';
+ this.prestigeSectionHtml()+
+  '</div>';
  },
 
  renderWarCardsList:function(){
@@ -2156,7 +2274,7 @@ var UI={
  var bf=document.getElementById("bdg-f");if(bf)bf.textContent="💧 "+this.fmtNum(S.linfa)+" Linfa";
  var be=document.getElementById("bdg-e");if(be)be.textContent="✨ "+this.fmtNum(S.semi||0);
  var bc=document.getElementById("bdg-c");if(bc)bc.textContent="🔥 "+this.fmtNum(S.cenere||0);
- var bl=document.getElementById("bdg-life");if(bl)bl.textContent="🐾 "+SIM.contaIndividuiVivi(S)+"/125";
+ var bl=document.getElementById("bdg-life");if(bl)bl.textContent="🐾 "+SIM.contaIndividuiVivi(S)+"/"+SIM.getTotalWorldSlots(S);
 
  if(U.view==="home" && !S.specialWheel){
  var intervalSec=SIM.getLancioIntervalSec(S);
@@ -2295,6 +2413,18 @@ function agisci(a,el){
  S=p.S;S.specialWheel=null;SIM.trimConcludedWars(S);UI.toast(UI.tr("Salvataggio importato","Save imported"));
  }else UI.toast(UI.tr("Codice non valido","Invalid code"));
  }catch(e){UI.toast(UI.tr("Codice non valido","Invalid code"));}
+ }
+ else if(a==="selPrestB"){U.prestigeB=SIM.clamp(Number(el.getAttribute("data-b")),0,4);}
+ else if(a==="selPrestK"){U.prestigeK=SIM.clamp(Number(el.getAttribute("data-k")),0,4);}
+ else if(a==="doPrestige"){
+  var nextSt=SIM.doPrestigeAddSlot(S,U.prestigeB,U.prestigeK);
+  if(nextSt){
+   clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);
+   S=nextSt;
+   U.view="bioma";
+   U.focB=U.prestigeB;
+   UI.toast(UI.tr("Prestigio completato: +1 slot aggiunto!","Prestige complete: +1 slot added!"));
+  }
  }
  else if(a==="finishWheel"){clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);SIM.finishWheelNow(S);}
  else if(a==="reset"){
