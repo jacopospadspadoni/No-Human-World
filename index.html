@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="No Human World">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 
-<title>No Human World · Ciclo della Vita (NHW_new_v06)</title>
+<title>No Human World · Ciclo della Vita (NHW_new_v07)</title>
 <style>
 :root{
  --font-serif:"Cinzel",Georgia,"Times New Roman",serif;
@@ -294,9 +294,9 @@ textarea.sv-box{width:100%;min-height:66px;background:var(--bg);color:var(--t);b
  * 1. CONFIG & DATA DEFINITIONS (Pure game rules & balance constants)
  * ============================================================================ */
 var CONFIG={
- VERSIONE:"NHW_new_v06",
+ VERSIONE:"NHW_new_v07",
  SCHEMA_VERSIONE:23,
- SAVE_KEY:"nhw_living_cycle_new_v06",
+ SAVE_KEY:"nhw_living_cycle_new_v07",
 
  BIOMI:[
  {
@@ -838,54 +838,67 @@ var SIM={
  },
 
  initiateAutonomousWars:function(st){
- if(!st.guerre)st.guerre=[];
- for(var a=0;a<CONFIG.BIOMI.length;a++){
- var B=st.biomi[a];
- if(!B||!B.sbloccato||(B.fatigueRemaining||0)>0)continue;
- var statsA=this.getBiomeLivingStats(st,a);
- if(statsA.count<CONFIG.REGOLE.minSlotAttacco || statsA.adults<CONFIG.REGOLE.minAdultiAttacco)continue;
+  if(!st.guerre)st.guerre=[];
+  for(var a=0;a<CONFIG.BIOMI.length;a++){
+   var B=st.biomi[a];
+   if(!B||!B.sbloccato||(B.fatigueRemaining||0)>0)continue;
 
- var alreadyAtk=false;
- for(var w=0;w<st.guerre.length;w++){
- if(st.guerre[w].active && st.guerre[w].atkIdx===a){alreadyAtk=true;break;}
- }
- if(alreadyAtk)continue;
+   /* Attacco sequenziale: un bioma apre un solo scontro attivo alla volta */
+   var alreadyAtk=false;
+   for(var w=0;w<st.guerre.length;w++){
+    if(st.guerre[w].active && st.guerre[w].atkIdx===a){alreadyAtk=true;break;}
+   }
+   if(alreadyAtk)continue;
 
- var forceA=this.getBiomeForce(st,a);
- var maxBudget=forceA*1.2;
- var remBudget=maxBudget;
+   /* Requisiti verificati prima di aprire il prossimo scontro della catena */
+   var statsA=this.getBiomeLivingStats(st,a);
+   if(statsA.count<CONFIG.REGOLE.minSlotAttacco || statsA.adults<CONFIG.REGOLE.minAdultiAttacco)continue;
 
- for(var d=0;d<CONFIG.BIOMI.length;d++){
- if(d===a || remBudget<=0)continue;
- var statsD=this.getBiomeLivingStats(st,d);
- var forceD=this.getBiomeForce(st,d);
- if(statsD.adults<CONFIG.REGOLE.minAdultiDifesa || forceD>forceA)continue;
+   var forceA=this.getBiomeForce(st,a);
+   if(forceA<=0)continue;
 
- var alloc=Math.min(remBudget,Math.max(1,Math.min(forceD,forceA)));
- remBudget-=alloc;
+   /* Sceglie il primo difensore valido in ordine sequenziale (con >=4 adulti e forza <= attaccante) */
+   var chosenDef=-1,chosenForceD=0,chosenStatsD=null;
+   for(var d=0;d<CONFIG.BIOMI.length;d++){
+    if(d===a)continue;
+    var statsD=this.getBiomeLivingStats(st,d);
+    var forceD=this.getBiomeForce(st,d);
+    if(statsD.adults>=CONFIG.REGOLE.minAdultiDifesa && forceD<=forceA){
+     chosenDef=d;
+     chosenForceD=forceD;
+     chosenStatsD=statsD;
+     break;
+    }
+   }
+   if(chosenDef<0)continue;
 
- st.guerre.push({
- id:"w_"+Math.floor(st.t)+"_"+a+"_"+d,
- atkIdx:a,
- defIdx:d,
- allocatedForce:Math.round(alloc),
- startAtkAdults:statsA.adults,
- startDefAdults:statsD.adults,
- endAtkAdults:null,
- endDefAdults:null,
- enemyKills:0,
- ownAdultLosses:0,
- ticksElapsed:0,
- cenereGained:0,
- winnerIt:"",
- winnerEn:"",
- furiaIt:"",
- furiaEn:"",
- active:true
- });
- this.addLog(st,CONFIG.BIOMI[a].it.N+" attacca "+CONFIG.BIOMI[d].it.N+" (forza "+Math.round(alloc)+").",CONFIG.BIOMI[a].en.N+" attacks "+CONFIG.BIOMI[d].en.N+" (force "+Math.round(alloc)+").",true);
- }
- }
+   var alloc=Math.max(1,Math.min(forceA,Math.max(chosenForceD,Math.round(forceA*0.5))));
+   st.guerre.push({
+    id:"w_"+Math.floor(st.t)+"_"+a+"_"+chosenDef,
+    atkIdx:a,
+    defIdx:chosenDef,
+    allocatedForce:Math.round(alloc),
+    startAtkAdults:statsA.adults,
+    startDefAdults:chosenStatsD.adults,
+    endAtkAdults:null,
+    endDefAdults:null,
+    enemyKills:0,
+    ownAdultLosses:0,
+    ticksElapsed:0,
+    cenereGained:0,
+    winnerIt:"",
+    winnerEn:"",
+    furiaIt:"",
+    furiaEn:"",
+    active:true
+   });
+   this.addLog(
+    st,
+    CONFIG.BIOMI[a].it.N+" avvia scontro sequenziale contro "+CONFIG.BIOMI[chosenDef].it.N+" (forza "+Math.round(alloc)+").",
+    CONFIG.BIOMI[a].en.N+" starts sequential clash against "+CONFIG.BIOMI[chosenDef].en.N+" (force "+Math.round(alloc)+").",
+    true
+   );
+  }
  },
 
  stepWarsTick:function(st,isOffline){
@@ -1947,43 +1960,43 @@ var UI={
  var finishedWars=allWars.filter(function(w){return !w.active;}).slice(-CONFIG.REGOLE.maxConcludedWarsShown).reverse();
  var list=U.warSubTab==="active"?activeWars:finishedWars;
  if(list.length===0){
-  return '<div class="banner" style="background:var(--card);border-color:var(--border);color:var(--m)">'+
-   (U.warSubTab==="active"
-    ?this.tr("Nessuna guerra in corso. Un bioma attacca in autonomia a 20/25 animali con almeno 10 adulti contro difensori con almeno 4 adulti.","No ongoing wars. A biome attacks autonomously at 20/25 animals with at least 10 adults against defenders with at least 4 adults.")
-    :this.tr("Nessuna guerra ancora conclusa.","No concluded wars yet."))+
-   '</div>';
+ return '<div class="banner" style="background:var(--card);border-color:var(--border);color:var(--m)">'+
+ (U.warSubTab==="active"
+ ?this.tr("Nessuna guerra in corso. Un bioma attacca in autonomia a 20/25 animali con almeno 10 adulti contro difensori con almeno 4 adulti.","No ongoing wars. A biome attacks autonomously at 20/25 animals with at least 10 adults against defenders with at least 4 adults.")
+ :this.tr("Nessuna guerra ancora conclusa.","No concluded wars yet."))+
+ '</div>';
  }
  return list.map(function(w){
-  var atkMeta=CONFIG.BIOMI[w.atkIdx]||CONFIG.BIOMI[0];
-  var defMeta=CONFIG.BIOMI[w.defIdx]||CONFIG.BIOMI[0];
-  var atkNome=U.lang==="en"?atkMeta.en.N:atkMeta.it.N;
-  var defNome=U.lang==="en"?defMeta.en.N:defMeta.it.N;
-  var stA=SIM.getBiomeLivingStats(S,w.atkIdx);
-  var stD=SIM.getBiomeLivingStats(S,w.defIdx);
-  var pct=Math.round(SIM.getWarHitChance(S,w.atkIdx,w.defIdx)*100);
-  var atkAd=w.active?(UI.tr("Adulti: ","Adults: ")+stA.adults):(UI.tr("Adulti: ","Adults: ")+w.startAtkAdults+" → "+w.endAtkAdults);
-  var defAd=w.active?(UI.tr("Adulti: ","Adults: ")+stD.adults):(UI.tr("Adulti: ","Adults: ")+w.startDefAdults+" → "+w.endDefAdults);
-  var fourth=w.active
-   ?('<div>'+UI.tr("Cenere totale: ","Total Ash: ")+'<b>'+UI.fmtNum(S.cenere||0)+'</b></div>')
-   :('<div>'+UI.tr("Vincitore: ","Winner: ")+'<b>'+UI.esc(U.lang==="en"?w.winnerEn:w.winnerIt)+' (+'+w.cenereGained+' 🔥)</b></div>');
-  var furiaNote=(!w.active && w.furiaIt)
-   ?('<div class="furia-war-note"><b>'+UI.tr("Ruota di Furia: ","Furia's Wheel: ")+'</b>'+UI.esc(U.lang==="en"?w.furiaEn:w.furiaIt)+'</div>')
-   :'';
-  return '<div class="war-card">'+
-   '<div class="war-card-hd"><span>'+(w.active?UI.tr("IN CORSO","ONGOING"):UI.tr("CONCLUSA","CONCLUDED"))+'</span><span>Tick: <b>'+w.ticksElapsed+'</b></span></div>'+
-   '<div class="war-visual">'+
-   '<div class="war-bubble atk"><small style="color:var(--m);font-size:.66rem">'+UI.tr("ATTACCANTE","ATTACKER")+'</small><br>'+UI.esc(atkNome)+'<br><small style="color:var(--m);font-weight:600">'+atkAd+'</small></div>'+
-   '<div class="war-arrows">═══▶<br><span>'+pct+'%</span></div>'+
-   '<div class="war-bubble def"><small style="color:var(--m);font-size:.66rem">'+UI.tr("DIFENSORE","DEFENDER")+'</small><br>'+UI.esc(defNome)+'<br><small style="color:var(--m);font-weight:600">'+defAd+'</small></div>'+
-   '</div>'+
-   '<div class="war-stats">'+
-   '<div>'+UI.tr("Forza: ","Force: ")+'<b>'+w.allocatedForce+'</b></div>'+
-   '<div>'+UI.tr("Nemici caduti: ","Enemies fallen: ")+'<b>'+w.enemyKills+'</b></div>'+
-   '<div>'+UI.tr("Adulti persi: ","Adults lost: ")+'<b>'+w.ownAdultLosses+'</b></div>'+
-   fourth+
-   '</div>'+
-   furiaNote+
-   '</div>';
+ var atkMeta=CONFIG.BIOMI[w.atkIdx]||CONFIG.BIOMI[0];
+ var defMeta=CONFIG.BIOMI[w.defIdx]||CONFIG.BIOMI[0];
+ var atkNome=U.lang==="en"?atkMeta.en.N:atkMeta.it.N;
+ var defNome=U.lang==="en"?defMeta.en.N:defMeta.it.N;
+ var stA=SIM.getBiomeLivingStats(S,w.atkIdx);
+ var stD=SIM.getBiomeLivingStats(S,w.defIdx);
+ var pct=Math.round(SIM.getWarHitChance(S,w.atkIdx,w.defIdx)*100);
+ var atkAd=w.active?(UI.tr("Adulti: ","Adults: ")+stA.adults):(UI.tr("Adulti: ","Adults: ")+w.startAtkAdults+" → "+w.endAtkAdults);
+ var defAd=w.active?(UI.tr("Adulti: ","Adults: ")+stD.adults):(UI.tr("Adulti: ","Adults: ")+w.startDefAdults+" → "+w.endDefAdults);
+ var fourth=w.active
+ ?('<div>'+UI.tr("Cenere totale: ","Total Ash: ")+'<b>'+UI.fmtNum(S.cenere||0)+'</b></div>')
+ :('<div>'+UI.tr("Vincitore: ","Winner: ")+'<b>'+UI.esc(U.lang==="en"?w.winnerEn:w.winnerIt)+' (+'+w.cenereGained+' 🔥)</b></div>');
+ var furiaNote=(!w.active && w.furiaIt)
+ ?('<div class="furia-war-note"><b>'+UI.tr("Ruota di Furia: ","Furia's Wheel: ")+'</b>'+UI.esc(U.lang==="en"?w.furiaEn:w.furiaIt)+'</div>')
+ :'';
+ return '<div class="war-card">'+
+ '<div class="war-card-hd"><span>'+(w.active?UI.tr("IN CORSO","ONGOING"):UI.tr("CONCLUSA","CONCLUDED"))+'</span><span>Tick: <b>'+w.ticksElapsed+'</b></span></div>'+
+ '<div class="war-visual">'+
+ '<div class="war-bubble atk"><small style="color:var(--m);font-size:.66rem">'+UI.tr("ATTACCANTE","ATTACKER")+'</small><br>'+UI.esc(atkNome)+'<br><small style="color:var(--m);font-weight:600">'+atkAd+'</small></div>'+
+ '<div class="war-arrows">═══▶<br><span>'+pct+'%</span></div>'+
+ '<div class="war-bubble def"><small style="color:var(--m);font-size:.66rem">'+UI.tr("DIFENSORE","DEFENDER")+'</small><br>'+UI.esc(defNome)+'<br><small style="color:var(--m);font-weight:600">'+defAd+'</small></div>'+
+ '</div>'+
+ '<div class="war-stats">'+
+ '<div>'+UI.tr("Forza: ","Force: ")+'<b>'+w.allocatedForce+'</b></div>'+
+ '<div>'+UI.tr("Nemici caduti: ","Enemies fallen: ")+'<b>'+w.enemyKills+'</b></div>'+
+ '<div>'+UI.tr("Adulti persi: ","Adults lost: ")+'<b>'+w.ownAdultLosses+'</b></div>'+
+ fourth+
+ '</div>'+
+ furiaNote+
+ '</div>';
  }).join("");
  },
 
@@ -2336,8 +2349,8 @@ function avvia(){
  setInterval(function(){
  if(!S||document.hidden)return;
  if(S.specialWheel&&S.specialWheel.expiresAt&&Date.now()>=S.specialWheel.expiresAt){
-  clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);
-  SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();return;
+ clearTimeout(U.wheelTimer);clearTimeout(U.wheelEndTimer);clearTimeout(U.wheelClearTimer);
+ SIM.finishWheelNow(S);SAVE.saveLocal();UI.renderFull();return;
  }
  if(U.vel<=0||S.specialWheel)return;
  var steps=U.vel===10?5:1;

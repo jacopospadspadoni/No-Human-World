@@ -1,8 +1,8 @@
-const CACHE_NAME = 'nhw-v06-pwa-v1';
+const CACHE_NAME = 'nhw-v07-pwa-v1';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './NHW_new_v06.html',
+  './NHW_new_v07.html',
   './manifest.json',
   './icon-192.svg',
   './icon-512.svg'
